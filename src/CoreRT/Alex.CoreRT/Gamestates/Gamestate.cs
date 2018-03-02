@@ -10,7 +10,9 @@ namespace Alex.CoreRT.Gamestates
 	{
 		public Dictionary<string, UIComponent> Controls { get; set; }
 
-        protected GraphicsDevice Graphics { get; }
+		protected GraphicsDevice Graphics { get; }
+		
+
 		public Gamestate(GraphicsDevice graphics)
 		{
 		    Graphics = graphics;

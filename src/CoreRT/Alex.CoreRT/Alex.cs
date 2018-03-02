@@ -3,6 +3,9 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using Alex.CoreRT.Gamestates;
+using Alex.CoreRT.Gamestates.Playing;
+using Alex.CoreRT.Worlds;
+using Alex.CoreRT.Worlds.Generators;
 using log4net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,6 +29,7 @@ namespace Alex.CoreRT
 		 
 		public static Alex Instance { get; private set; }
 		public GamestateManager GamestateManager { get; private set; }
+		public CoolSceneManager SceneManager { get; private set; }
 		public ResourceManager Resources { get; private set; }
 		public Alex()
 		{
@@ -103,6 +107,7 @@ namespace Alex.CoreRT
 		protected override void LoadContent()
 		{
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
+			SceneManager = new CoolSceneManager(this);
 			GamestateManager = new GamestateManager(GraphicsDevice, _spriteBatch);
 
 			GamestateManager.AddState("splash", new SplashScreen(GraphicsDevice));
@@ -120,6 +125,7 @@ namespace Alex.CoreRT
 		protected override void Update(GameTime gameTime)
 		{
 			GamestateManager.Update(gameTime);
+			SceneManager.Update(gameTime);
 			base.Update(gameTime);
 		}
 
@@ -129,6 +135,8 @@ namespace Alex.CoreRT
 			GraphicsDevice.Clear(Color.SkyBlue);
 
 			GamestateManager.Draw(gameTime);
+
+			SceneManager.Draw(gameTime);
 
 			base.Draw(gameTime);
 		}
@@ -152,8 +160,26 @@ namespace Alex.CoreRT
 
 			Mouse.SetPosition(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
 
-			GamestateManager.AddState("login", new LoginState(this));
-			GamestateManager.SetActiveState("login");
+			IWorldGenerator generator;
+			if (GameSettings.UseBuiltinGenerator || (string.IsNullOrWhiteSpace(GameSettings.Anvil) || !File.Exists(Path.Combine(GameSettings.Anvil, "level.dat"))))
+			{
+				generator = new OverworldGenerator();
+			}
+			else
+			{
+				generator = new AnvilWorldProvider(GameSettings.Anvil)
+				{
+					MissingChunkProvider = new VoidWorldGenerator()
+				};
+			}
+
+			generator.Initialize();
+
+			PlayingState playState = new PlayingState(this, GraphicsDevice, new SPWorldProvider(this, generator));
+			GamestateManager.AddState("play", playState);
+			GamestateManager.SetActiveState("play");
+
+			SceneManager.LoadScreen();
 
 			GamestateManager.RemoveState("splash");
 

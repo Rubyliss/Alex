@@ -22,13 +22,13 @@ namespace Alex.CoreRT.Gamestates.Playing
 		private FpsMonitor FpsCounter { get; set; }
 		private Texture2D CrosshairTexture { get; set; }
 
-		private ChatComponent Chat { get; }
+		private ChatItem Chat { get; }
 		private ThreadSafeList<IOverlay> ActiveOverlays { get; }
  	//	private WaterOverlay WaterOverlay { get; }
 		public PlayingState(Alex alex, GraphicsDevice graphics, WorldProvider worldProvider) : base(graphics)
 		{
 			Alex = alex;
-			Chat = new ChatComponent();
+			Chat = new ChatItem();
 
 			Camera = new FirstPersonCamera(alex.GameSettings.RenderDistance, Vector3.Zero, Vector3.Zero);
 

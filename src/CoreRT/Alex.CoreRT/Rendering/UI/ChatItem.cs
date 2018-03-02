@@ -8,12 +8,12 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Alex.CoreRT.Rendering.UI
 {
-	public class ChatComponent : UIComponent
+	public class ChatItem : UIComponent
 	{
 		public bool RenderChatInput { get; private set; } = false;
 		private List<string> ChatMessages { get; set; } = new List<string>();
 		private StringBuilder _input = new StringBuilder();
-		public ChatComponent()
+		public ChatItem()
 		{
 			Alex.OnCharacterInput += OnCharacterInput;
 		}

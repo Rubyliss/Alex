@@ -244,7 +244,7 @@ namespace Alex.CoreRT.Graphics.Models
 						{
 							vert.Position = V3.Transform(vert.Position, faceRotationMatrix);
 
-							if (elementRotation.Rescale)
+							//if (elementRotation.Rescale)
 							{
 								if (elementRotation.Axis == Axis.X || elementRotation.Axis == Axis.Z)
 								{
