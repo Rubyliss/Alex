@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Alex.API.Graphics;
 using Alex.API.World;
 using Alex.Blocks;
 using Alex.Utils;
 using Alex.Worlds;
-using log4net;
-using Microsoft.Xna.Framework;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Alex.ResourcePackLib.Json;
@@ -15,16 +14,16 @@ using Axis = Alex.ResourcePackLib.Json.Axis;
 
 namespace Alex.Graphics.Models
 {
-	public class MultiStateResourcePackModel : ResourcePackModel
+	public class MultiStateResourcePackModel : CachedResourcePackModel
 	{
-		private static ILog Log = LogManager.GetLogger(typeof(MultiStateResourcePackModel));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(MultiStateResourcePackModel));
 		static MultiStateResourcePackModel()
 		{
 			
 		}
 
 		private BlockState BlockState { get; }
-		public MultiStateResourcePackModel(ResourceManager resources, BlockState blockState) : base(resources)
+		public MultiStateResourcePackModel(ResourceManager resources, BlockState blockState) : base(resources, null)
 		{
 			BlockState = blockState;	
 		}
@@ -98,27 +97,27 @@ namespace Alex.Graphics.Models
 			switch (rule)
 			{
 				case "north":
-					direction = Vector3.Forward;
+					direction = -Vector3.UnitZ;
 					opposite = "south";
 					break;
 				case "east":
-					direction = Vector3.Right;
+					direction = -Vector3.UnitX;
 					opposite = "west";
 					break;
 				case "south":
-					direction = Vector3.Backward;
+					direction = Vector3.UnitZ;
 					opposite = "north";
 					break;
 				case "west":
-					direction = Vector3.Left;
+					direction = -Vector3.UnitX;
 					opposite = "south";
 					break;
 				case "up":
-					direction = Vector3.Up;
+					direction = Vector3.UnitY;
 					opposite = "down";
 					break;
 				case "down":
-					direction = Vector3.Down;
+					direction = -Vector3.UnitY;
 					opposite = "up";
 					break;
 				default:
@@ -150,8 +149,8 @@ namespace Alex.Graphics.Models
 		{
 			Vector3 worldPosition = new Vector3(position.X, position.Y, position.Z);
 
-			Variant = GetBlockStateModels(world, worldPosition, baseBlock);
-			CalculateBoundingBox();
+			if (!Cached)
+				Cache(GetBlockStateModels(world, worldPosition, baseBlock));
 
 			return base.GetVertices(world, worldPosition, baseBlock);
 		}

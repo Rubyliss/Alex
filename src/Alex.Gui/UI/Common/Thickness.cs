@@ -1,7 +1,8 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using Veldrid;
 
-namespace Alex.Graphics.UI.Common
+namespace Alex.Engine.UI.Common
 {
 	public struct Thickness : IEquatable<Thickness>
 	{

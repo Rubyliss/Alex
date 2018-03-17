@@ -10,7 +10,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
 
@@ -25,7 +25,6 @@
     <None Remove="BlockFactory.cs" />
     <None Remove="Blocks\Air.cs" />
     <None Remove="Blocks\Block.cs" />
-    <None Remove="Blocks\BlockData.cs" />
     <None Remove="Blocks\BlockRegistry.cs" />
     <None Remove="Blocks\Door.cs" />
     <None Remove="Blocks\FlowingLava.cs" />
@@ -39,6 +38,8 @@
     <None Remove="Blocks\Properties\PropertyHelper.cs" />
     <None Remove="Blocks\State\BlockState.cs" />
     <None Remove="Blocks\State\StateImplementation.cs" />
+    <None Remove="Blocks\State\StateProperty.cs" />
+    <None Remove="Blocks\State\UnknownProperty.cs" />
     <None Remove="Blocks\Storage\BlockStateContainer.cs" />
     <None Remove="Blocks\Storage\ExtendedBlockStorage.cs" />
     <None Remove="Blocks\Storage\FlexibleStorage.cs" />
@@ -71,8 +72,6 @@
     <None Remove="Graphics\Models\Model.cs" />
     <None Remove="Graphics\Models\MultiStateCachedResourcePackModel.cs" />
     <None Remove="Graphics\Models\ResourcePackModel.cs" />
-    <None Remove="Graphics\Overlays\Overlay.cs" />
-    <None Remove="Graphics\Overlays\WaterOverlay.cs" />
     <None Remove="KeyBinds.cs" />
     <None Remove="Program.cs" />
     <None Remove="Rendering\Camera\Camera.cs" />
@@ -125,7 +124,6 @@
     <Compile Include="BlockFactory.cs" />
     <Compile Include="Blocks\Air.cs" />
     <Compile Include="Blocks\Block.cs" />
-    <Compile Include="Blocks\BlockData.cs" />
     <Compile Include="Blocks\BlockRegistry.cs" />
     <Compile Include="Blocks\Door.cs" />
     <Compile Include="Blocks\FlowingLava.cs" />
@@ -137,6 +135,8 @@
     <Compile Include="Blocks\Properties\PropertyFacing.cs" />
     <Compile Include="Blocks\Properties\PropertyBool.cs" />
     <Compile Include="Blocks\State\BlockState.cs" />
+    <Compile Include="Blocks\State\StateProperty.cs" />
+    <Compile Include="Blocks\Properties\UnknownProperty.cs" />
     <Compile Include="Blocks\Storage\BlockStateContainer.cs" />
     <Compile Include="Blocks\Storage\ExtendedBlockStorage.cs" />
     <Compile Include="Blocks\Storage\FlexibleStorage.cs" />
@@ -168,8 +168,6 @@
     <Compile Include="Graphics\Models\CachedResourcePackModel.cs" />
     <Compile Include="Graphics\Models\ResourcePackModel.cs" />
     <Compile Include="Graphics\Models\LiquidBlockModel.cs" />
-    <Compile Include="Graphics\Overlays\Overlay.cs" />
-    <Compile Include="Graphics\Overlays\WaterOverlay.cs" />
     <Compile Include="KeyBinds.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Rendering\Camera\Camera.cs" />
@@ -228,13 +226,14 @@
 
 	<ItemGroup>
     <PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
-    <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+    <PackageReference Include="NLog.Config" Version="4.5.0-rc07" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.0.0-rtm-rc7" />
   </ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Alex.API\Alex.API.csproj" />
-		<ProjectReference Include="..\Alex.Gui\Alex.Graphics.csproj" />
+		<ProjectReference Include="..\Alex.Gui\Alex.Engine.csproj" />
 		<ProjectReference Include="..\Alex.ResourcePackLib\Alex.ResourcePackLib.csproj" />
 	</ItemGroup>
 
@@ -243,14 +242,8 @@
 		  <HintPath>..\External\CoreFNBT.dll</HintPath>
 		</Reference>
 		<Reference Include="MiNET">
-			<HintPath>..\External\MiNET.dll</HintPath>
+		  <HintPath>..\External\MiNET.dll</HintPath>
 		</Reference>
-	  <Reference Include="MonoGame.Framework">
-	    <HintPath>..\External\MonoGame.Framework.dll</HintPath>
-	  </Reference>
-	  <Reference Include="MonoGame.Framework.Content.Pipeline">
-	    <HintPath>..\External\MonoGame.Framework.Content.Pipeline.dll</HintPath>
-	  </Reference>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -269,8 +262,623 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="log4net.config">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<None Update="C:\Users\kenny\.nuget\packages\nlog.config\4.5.0-rc07\contentFiles\any\any\NLog.config">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\7f4ba1a2-43dd-45b1-aa3f-0b3ca2ebd5c8\glsl\entity.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\7f4ba1a2-43dd-45b1-aa3f-0b3ca2ebd5c8\hlsl\entity.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\884ecfc8-a6e6-4ee1-a860-fd1f85d2bbc9\glsl\entity.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\884ecfc8-a6e6-4ee1-a860-fd1f85d2bbc9\hlsl\entity.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\98330b0a-2c79-4d30-b9c8-136098340edc\glsl\entity.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\98330b0a-2c79-4d30-b9c8-136098340edc\hlsl\entity.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\b8de1e1e-ad0c-407f-af95-211e85e0a274\glsl\entity.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\b8de1e1e-ad0c-407f-af95-211e85e0a274\hlsl\entity.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\bd49c9c7-d2c9-432d-a24f-5227a3bde5f1\glsl\entity.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\bd49c9c7-d2c9-432d-a24f-5227a3bde5f1\hlsl\entity.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\ce292d20-42e1-4873-a721-06507dbd54d4\glsl\festive_foliage.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\ce292d20-42e1-4873-a721-06507dbd54d4\hlsl\festive_foliage.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\d10c2615-6558-4a31-b32d-a5bf9bc3fbc5\glsl\entity.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\d10c2615-6558-4a31-b32d-a5bf9bc3fbc5\hlsl\entity.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\d1bea604-839d-4e53-8c1f-4732b419ab1f\glsl\entity.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\d1bea604-839d-4e53-8c1f-4732b419ab1f\hlsl\entity.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\d725e15d-105d-4f12-997f-16f844717b59\glsl\entity.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\d725e15d-105d-4f12-997f-16f844717b59\hlsl\entity.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\banner.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\banner.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\blur.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\cloud.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\color.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\color.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\color_ex.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\color_grayscale.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\color_texture.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\color_uv.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\current_color.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\depth_downsample.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\depth_of_field.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\end_portal.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\end_portal.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\entity.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\entity.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\entity_multitexture.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\flat_white.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\fragmentVersionCentroid.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\fragmentVersionCentroidUV.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\fragmentVersionSimple.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\hologram_texture_stereo.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\iteminhand.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\levelstage_copy_vr.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\normal_as_color.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\nvn.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\nxFragmentHeader.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\nxGeometryHeader.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\nxVertexHeader.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\placeholder.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\placeholder.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\position.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\rain_snow.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\rain_snow.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\renderchunk.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\renderchunk.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\resolve_depth.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\selection_box.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\shadow_stencil_overlay.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\simple.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\sky.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\stars.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\text.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\texture.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\texture_blend.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\texture_ccolor.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\texture_cutout.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\texture_raw_alphatest.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformBannerConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformDebugConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformEffectsConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformEntityConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformFlipbookTextureConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformInterFrameConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformMacro.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformPerFrameConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformRenderChunkConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformShaderConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformTextConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformWeatherConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uniformWorldConstants.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\util.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uv.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uv_as_color.fragment">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uv_blend.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uv_blend_flipbook.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uv_repeat.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uv_scale.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uv_selection_overlay.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\uv_time_rotate.vertex">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\vertexVersionCentroid.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\vertexVersionCentroidUV.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\glsl\vertexVersionSimple.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\banner_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\banner_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\cloud_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\color_ex_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\color_grayscale_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\color_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\color_texture_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\color_uv_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\color_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\current_color_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\end_portal_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\end_portal_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\entity_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\entity_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\flat_white_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\hologram_texture_stereo_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\iteminhand_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\levelstage_copy_vr_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\normal_as_color_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\position_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\rain_snow_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\rain_snow_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\renderchunk_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\renderchunk_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\selection_box_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\ShaderConstantsGNM.h">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\shadow_stencil_overlay_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\simple_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\sky_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\stars_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\Template_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\Template_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\texture_blend_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\texture_ccolor_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\texture_cutout_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\texture_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\texture_raw_alphatest_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\text_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\uv_as_color_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\uv_blend_flipbook_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\uv_blend_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\uv_repeat_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\uv_scale_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\uv_selection_overlay_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\uv_time_rotate_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\uv_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\weather_p.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\gnm\weather_vv.pssl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\banner.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\banner.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\banner.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\blur.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\cloud.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\cloud.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\color.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\color.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\color.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\color_ex.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\color_grayscale.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\color_texture.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\color_uv.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\color_uv.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\current_color.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\depth_downsample.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\depth_of_field.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\end_portal.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\end_portal.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\end_portal.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\entity.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\entity.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\entity.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\flat_white.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\hologram_texture_stereo.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\hologram_uv_stereo.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\iteminhand.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\levelstage_copy_vr.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\normal_as_color.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\passthrough.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\position.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\position.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\rain_snow.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\rain_snow.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\rain_snow.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\renderchunk.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\renderchunk.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\renderchunk.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\resolve_depth.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\selection_box.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\ShaderConstants.fxh">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\shadow_stencil_overlay.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\simple.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\sky.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\sky.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\stars.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\Template.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\Template.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\text.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\texture.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\texture_blend.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\texture_ccolor.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\texture_cutout.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\texture_raw_alphatest.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\util.fxh">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv_as_color.fragment.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv_blend.geometry.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv_blend.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv_blend_flipbook.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv_repeat.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv_scale.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv_selection_overlay.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Shaders\hlsl\uv_time_rotate.vertex.hlsl">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 

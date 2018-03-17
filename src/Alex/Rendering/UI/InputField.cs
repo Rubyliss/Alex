@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Drawing;
+using System.Numerics;
+using Alex.Engine;
 using Alex.Gamestates;
+using Alex.Graphics;
 using Alex.Utils;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using Veldrid;
+using Veldrid.Sdl2;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex.Rendering.UI
 {
 	public class InputField : UIComponent
 	{
 		private Rectangle ButtonRectangle { get; set; }
-		private Texture2D ButtonTexture { get; set; }
+		private Texture ButtonTexture { get; set; }
 
 		public string PlaceHolder { get; set; }
 
@@ -31,7 +35,7 @@ namespace Alex.Rendering.UI
 			Focus = false;
 			PasswordField = false;
 
-			PrevMouseState = Mouse.GetState();
+		//	PrevMouseState = Mouse.GetState();
 		}
 
 		private void OnCharacterInput(char c)
@@ -100,7 +104,7 @@ namespace Alex.Rendering.UI
 				measureString = Alex.Font.MeasureString(s);
 			}
 
-			args.SpriteBatch.Begin();
+			args.SpriteBatch.Begin(args.Commands);
 
 			args.SpriteBatch.Draw(ButtonTexture, ButtonRectangle, Color.Cornsilk);
 			args.SpriteBatch.DrawString(Alex.Font, s,
@@ -109,13 +113,13 @@ namespace Alex.Rendering.UI
 			args.SpriteBatch.End();
 		}
 
-		private KeyboardState PrevKeyState { get; set; }
+	//	private KeyboardState PrevKeyState { get; set; }
 		private DateTime LastUpdate { get; set; }
 		private DateTime LastChange { get; set; }
 		private MouseState PrevMouseState { get; set; }
 		public override void Update(GameTime time)
 		{
-			var ms = Mouse.GetState();
+		/*	var ms = Mouse.GetState();
 			var mouseRec = new Rectangle(ms.X, ms.Y, 1, 1);
 
 			if (ms != PrevMouseState)
@@ -166,12 +170,12 @@ namespace Alex.Rendering.UI
 			{
 				DoThing = !DoThing;
 				LastChange = DateTime.Now;
-			}
+			}*/
 		}
 
-		private void OnCharacterInput(object sender, TextInputEventArgs c)
-		{
-			OnCharacterInput(c.Character);
-		}
+	//	private void OnCharacterInput(object sender, TextInputEventArgs c)
+		//{
+		//	OnCharacterInput(c.Character);
+		//}
 	}
 }

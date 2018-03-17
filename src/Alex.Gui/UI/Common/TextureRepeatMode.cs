@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Alex.Graphics.UI.Common
+﻿namespace Alex.Engine.UI.Common
 {
     public enum TextureRepeatMode
     {

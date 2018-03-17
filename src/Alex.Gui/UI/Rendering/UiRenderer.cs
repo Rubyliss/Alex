@@ -1,12 +1,16 @@
 ﻿using System;
-using Alex.Graphics.Textures;
-using Alex.Graphics.UI.Abstractions;
-using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Themes;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using System.Drawing;
+using System.Numerics;
+using Alex.Engine.Graphics.Sprites;
+using Alex.Engine.Textures;
+using Alex.Engine.UI.Abstractions;
+using Alex.Engine.UI.Common;
+using Alex.Engine.UI.Themes;
+using Veldrid;
+using Point = Veldrid.Point;
+using Rectangle = Veldrid.Rectangle;
 
-namespace Alex.Graphics.UI.Rendering
+namespace Alex.Engine.UI.Rendering
 {
 	public class UiRenderer
 	{
@@ -16,18 +20,15 @@ namespace Alex.Graphics.UI.Rendering
 		public UiTheme   Theme     => UiManager.Theme;
 
 		private GraphicsDevice Graphics    { get; }
-		private SpriteBatch    SpriteBatch { get; }
+		private SpriteBatch SpriteBatch { get; }
 
 
 		public int VirtualWidth  { get; private set; }
 		public int VirtualHeight { get; private set; }
 		public int ScaleFactor   { get; private set; }
 
-		public Matrix ScaleMatrix         { get; private set; }
-		public Matrix PointToScreenMatrix { get; private set; }
-
-		private RasterizerState _rasteriserState = null;
-
+		public Matrix4x4 ScaleMatrix         { get; private set; }
+		public Matrix4x4 PointToScreenMatrix { get; private set; }
 
 		public UiRenderer(UiManager uiManager, GraphicsDevice graphicsDevice, SpriteBatch spriteBatch)
 		{
@@ -36,12 +37,6 @@ namespace Alex.Graphics.UI.Rendering
 			Graphics    = graphicsDevice;
 
 			UpdateViewport();
-
-			_rasteriserState = new RasterizerState()
-			{
-				ScissorTestEnable = true,
-				CullMode = CullMode.None,
-			};
 		}
 
 		public void SetVirtualSize(int width, int height, int scaleFactor)
@@ -63,12 +58,13 @@ namespace Alex.Graphics.UI.Rendering
 
 		private void UpdateViewport()
 		{
-			var viewport = Graphics.Viewport;
+		/*	var viewport = Graphics.Viewport;
 			var scaleX   = (float) viewport.Width  / VirtualWidth;
 			var scaleY   = (float) viewport.Height / VirtualHeight;
 
-			ScaleMatrix         = Matrix.CreateScale(scaleX, scaleY, 1.0f);
-			PointToScreenMatrix = Matrix.Invert(ScaleMatrix);
+			ScaleMatrix         = Matrix4x4.CreateScale(scaleX, scaleY, 1.0f);
+			Matrix4x4.Invert(ScaleMatrix, out var p);
+			PointToScreenMatrix = p;*/
 		}
 
 		public Point PointToScreen(Point point)
@@ -76,9 +72,9 @@ namespace Alex.Graphics.UI.Rendering
 			return Vector2.Transform(point.ToVector2(), PointToScreenMatrix).ToPoint();
 		}
 
-		public void BeginDraw()
+		public void BeginDraw(CommandList commandList)
 		{
-			SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, ScaleMatrix);
+			SpriteBatch.Begin(commandList /*SpriteSortMode.Deferred, BlendStateDescription.SingleAlphaBlend, null, DepthStencilStateDescription.Disabled, RasterizerStateDescription.CullNone, null, ScaleMatrix*/);
 		}
 
 		public void EndDraw()
@@ -165,20 +161,19 @@ namespace Alex.Graphics.UI.Rendering
 				for (int i = 0; i < style.TextShadowSize; i++)
 				{
 					SpriteBatch.DrawString(style.TextFont, element.Text, pos + new Vector2(i, i), shadowColor, 0, Vector2.Zero,
-						textScale, SpriteEffects.None, 0);
+						textScale);
 				}
 			}
 
-			SpriteBatch.DrawString(style.TextFont, element.Text, pos, style.TextColor.Value, 0, Vector2.Zero, textScale,
-				SpriteEffects.None, 0);
+			SpriteBatch.DrawString(style.TextFont, element.Text, pos, style.TextColor.Value, 0, Vector2.Zero, textScale);
 		}
 
 		public void FillRectangle(Rectangle bounds, Color color)
 		{
-			var texture = new Texture2D(Graphics, 1, 1, false, SurfaceFormat.Color);
-			texture.SetData(new Color[] {color});
+			//var texture = new Texture(Graphics, 1, 1, false, SurfaceFormat.Color);
+			//texture.SetData(new Color[] {color});
 
-			FillRectangle(bounds, texture, TextureRepeatMode.Stretch);
+			//FillRectangle(bounds, texture, TextureRepeatMode.Stretch);
 		}
 
 		public void DrawNinePatch(Rectangle bounds, NinePatchTexture ninePatchTexture, TextureRepeatMode repeatMode)
@@ -198,15 +193,15 @@ namespace Alex.Graphics.UI.Rendering
 				var dstPatch = destRegions[i];
 
 				if(dstPatch.Width > 0 && dstPatch.Height > 0)
-					SpriteBatch.Draw(ninePatchTexture.Texture, sourceRectangle: srcPatch, destinationRectangle: dstPatch, color: Color.White);
+					SpriteBatch.Draw(ninePatchTexture.Texture,  srcPatch, dstPatch, color: Color.White);
 			}
 		}
 
-		public void FillRectangle(Rectangle bounds, Texture2D texture, TextureRepeatMode repeatMode)
+		public void FillRectangle(Rectangle bounds, Texture texture, TextureRepeatMode repeatMode)
 		{
 			if (repeatMode == TextureRepeatMode.NoRepeat)
 			{
-				SpriteBatch.Draw(texture, new Rectangle(bounds.Location, new Point(texture.Width, texture.Height)), texture.Bounds,
+				SpriteBatch.Draw(texture, new Rectangle(bounds.X, bounds.Y, (int) texture.Width, (int) texture.Height), new Rectangle(0, 0, (int) texture.Width, (int) texture.Height),
 					Color.White);
 			}
 			else if (repeatMode == TextureRepeatMode.Stretch)
@@ -225,8 +220,8 @@ namespace Alex.Graphics.UI.Rendering
 				{
 					for (int j = 0; j < repeatY; j++)
 					{
-						var p = bounds.Location.ToVector2() + new Vector2(i * texture.Width, j * texture.Height);
-						SpriteBatch.Draw(texture, p, texture.Bounds, Color.White);
+						var p = new Vector2(bounds.X, bounds.Y) + new Vector2(i * texture.Width, j * texture.Height);
+					//	SpriteBatch.Draw(texture, p, new Rectangle(bounds.X, bounds.Y, (int)texture.Width, (int)texture.Height), Color.White);
 					}
 				}
 			}
@@ -234,8 +229,13 @@ namespace Alex.Graphics.UI.Rendering
 
 		public void DrawRectangle(Rectangle bounds, Color color, int thickness = 1)
 		{
-			var texture = new Texture2D(Graphics, 1, 1, false, SurfaceFormat.Color);
-			texture.SetData(new Color[] {color});
+			var texture = Graphics.ResourceFactory.CreateTexture(new TextureDescription(1, 1, 0, 1, 0, PixelFormat.R8_G8_B8_A8_SInt,
+				TextureUsage.RenderTarget, TextureType.Texture2D));
+
+			
+			//Graphics.UpdateTexture(texture, );
+		//	var texture = new Texture(Graphics, 1, 1, false, SurfaceFormat.Color);
+			//texture.SetData(new Color[] {color});
 
 			// Top
 			SpriteBatch.Draw(texture, new Rectangle(bounds.X, bounds.Y, bounds.Width, thickness), color);
@@ -256,7 +256,7 @@ namespace Alex.Graphics.UI.Rendering
 		{
 			if (font != null && !string.IsNullOrWhiteSpace(text))
 			{
-				SpriteBatch.DrawString(font, text, bounds.Location.ToVector2(), color);
+				SpriteBatch.DrawString(font, text, new Vector2(bounds.X, bounds.Y), color);
 			}
 		}
 	}

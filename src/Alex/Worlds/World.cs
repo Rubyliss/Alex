@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Alex.API.Blocks.State;
 using Alex.API.Graphics;
 using Alex.API.World;
+using Alex.Engine;
 using Alex.Gamestates;
+using Alex.Graphics;
 using Alex.Rendering;
 using Alex.Utils;
 using Alex.Worlds.Lighting;
-using log4net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Worlds;
+using SharpDX.Direct3D11;
+using Veldrid;
 using Block = Alex.Blocks.Block;
 using EntityManager = Alex.Rendering.EntityManager;
 
@@ -21,7 +23,7 @@ namespace Alex.Worlds
 {
 	public class World : IWorld, IWorldReceiver
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(World));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(World));
 		
         private GraphicsDevice Graphics { get; }
 		private Rendering.Camera.Camera Camera { get; }
@@ -72,8 +74,8 @@ namespace Alex.Worlds
 
         public void Render(IRenderArgs args)
         {
-            Graphics.DepthStencilState = DepthStencilState.Default;
-            Graphics.SamplerStates[0] = SamplerState.PointWrap;
+            //Graphics.DepthStencilState = DepthStencilState.Default;
+           // Graphics.SamplerStates[0] = SamplerState.PointWrap;
             
             ChunkManager.Draw(args);
 			EntityManager.Render(args, Camera);

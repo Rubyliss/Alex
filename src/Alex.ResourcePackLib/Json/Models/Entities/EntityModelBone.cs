@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Numerics;
 
 namespace Alex.ResourcePackLib.Json.Models.Entities
 {

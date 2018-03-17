@@ -1,14 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
-using Alex.Graphics.Textures;
-using Alex.Graphics.UI.Common;
-using log4net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Alex.Engine.Graphics.Sprites;
+using Alex.Engine.Textures;
+using Alex.Engine.UI.Common;
 
-namespace Alex.Graphics.UI.Themes
+namespace Alex.Engine.UI.Themes
 {
 
 	public class UiElementStyle
@@ -47,7 +47,7 @@ namespace Alex.Graphics.UI.Themes
 	
 	public class UiElementStyle2
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(UiElementStyle));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(UiElementStyle));
 
 		public int Priority { get; set; } = -1;
 		

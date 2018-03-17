@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using Alex.Engine;
+using Alex.Engine.Graphics.Sprites;
+using Alex.Engine.UI;
 using Alex.Graphics;
-using Alex.Graphics.UI;
-using Alex.Rendering;
-using log4net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Veldrid;
 
 namespace Alex.Gamestates
 {
     public class GameStateManager
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(GameStateManager));
+        private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(GameStateManager));
         
         private ConcurrentDictionary<string, GameState> ActiveStates { get; }
         private GameState ActiveState { get; set; }
@@ -100,7 +99,7 @@ namespace Alex.Gamestates
 	        return SetActiveState(state);
         }
 
-        public void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime, CommandList commands)
         {
 	        GameState activeState;
 			Lock.EnterReadLock();
@@ -123,7 +122,8 @@ namespace Alex.Gamestates
                     {
                         SpriteBatch = SpriteBatch,
                         GameTime = gameTime,
-                        GraphicsDevice = Graphics
+                        GraphicsDevice = Graphics,
+						Commands = commands
                     };
 
 	                activeState.Draw3D(args);
@@ -131,7 +131,7 @@ namespace Alex.Gamestates
                 }
                 catch (Exception ex)
                 {
-                    Log.Warn("An exception occured while trying to render!", ex);
+                    Log.Warn("An exception occured while trying to render: " + ex.ToString());
                 }
             }
         }
@@ -163,7 +163,7 @@ namespace Alex.Gamestates
                 }
                 catch(Exception ex)
                 {
-                    Log.Warn($"An exception occured while trying to call Update!", ex);
+                    Log.Warn(ex, $"An exception occured while trying to call Update!");
                 }
             }
         }

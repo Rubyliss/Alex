@@ -10,15 +10,12 @@ using Alex.ResourcePackLib.Json;
 using Alex.ResourcePackLib.Json.BlockStates;
 using Alex.ResourcePackLib.Json.Models;
 using Alex.ResourcePackLib.Json.Models.Blocks;
-using log4net;
-using Microsoft.Xna.Framework;
-using Color = Microsoft.Xna.Framework.Color;
 
 namespace Alex.ResourcePackLib
 {
 	public class McResourcePack : IDisposable
 	{
-		private static ILog Log = LogManager.GetLogger(typeof(McResourcePack));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(McResourcePack));
 		public ResourcePackInfo Info { get; private set; }
 
 		public IReadOnlyDictionary<string, BlockState> BlockStates => _blockStates;
@@ -47,15 +44,27 @@ namespace Alex.ResourcePackLib
 			Load();
 		}
 
+		float Clamp(float value, float min, float max)
+		{
+
+			float result;
+
+			if (value > max) { result = max; }
+			if (value < min) { result = min; }
+			else { result = value; }
+
+			return result;
+		}
+
 		public Color GetGrassColor(float temp, float rain, int elevation)
 		{
-			if (GrassColors == null) return new Color(94, 157, 52);
+			if (GrassColors == null) return Color.FromArgb(94, 157, 52);
+			
+			temp = Clamp(temp - elevation * 0.00166667f, 0f, 1f);
+			rain = Clamp(rain, 0f, 1f) * temp;
 
-			temp = MathHelper.Clamp(temp - elevation * 0.00166667f, 0f, 1f);
-			rain = MathHelper.Clamp(rain, 0f, 1f) * temp;
-
-			int x = (int)Math.Floor(MathHelper.Clamp(_grassWidth - (_grassWidth * temp), 0, _grassWidth));
-			int y = (int)Math.Floor(MathHelper.Clamp(_grassHeight - (_grassHeight * rain), 0, _grassHeight));
+			int x = (int)Math.Floor(Clamp(_grassWidth - (_grassWidth * temp), 0, _grassWidth));
+			int y = (int)Math.Floor(Clamp(_grassHeight - (_grassHeight * rain), 0, _grassHeight));
 
 			var indx = _grassWidth * y + x;
 
@@ -64,17 +73,17 @@ namespace Alex.ResourcePackLib
 			
 			var result = GrassColors[indx];
 
-			return new Color(result.R, result.G, result.B);
+			return Color.FromArgb(result.R, result.G, result.B);
 		}
 
 		public Color GetFoliageColor(float temp, float rain, int elevation)
 		{
-			if (FoliageColors == null) return new Color(94, 157, 52);
-			temp = MathHelper.Clamp(temp - elevation * 0.00166667f, 0f, 1f);
-			rain = MathHelper.Clamp(rain, 0f, 1f) * temp;
+			if (FoliageColors == null) return Color.FromArgb(94, 157, 52);
+			temp = Clamp(temp - elevation * 0.00166667f, 0f, 1f);
+			rain = Clamp(rain, 0f, 1f) * temp;
 
-			int x = (int)Math.Floor(MathHelper.Clamp(_foliageWidth - (_foliageWidth * temp), 0, _foliageWidth));
-			int y = (int)Math.Floor(MathHelper.Clamp(_foliageHeight - (_foliageHeight * rain), 0, _foliageHeight));
+			int x = (int)Math.Floor(Clamp(_foliageWidth - (_foliageWidth * temp), 0, _foliageWidth));
+			int y = (int)Math.Floor(Clamp(_foliageHeight - (_foliageHeight * rain), 0, _foliageHeight));
 
 			var indx = _foliageWidth * y + x;
 
@@ -83,7 +92,7 @@ namespace Alex.ResourcePackLib
 
 			var result = FoliageColors[indx];
 
-			return new Color(result.R, result.G, result.B);
+			return Color.FromArgb(result.R, result.G, result.B);
 		}
 
 		public bool TryGetBitmap(string resource, out Bitmap texture)
@@ -104,7 +113,7 @@ namespace Alex.ResourcePackLib
 			}
 			catch(Exception exception)
 			{
-				Log.Error("Oh oh!", exception);
+				Log.Error(exception, "Oh oh!");
 				texture = default(Bitmap);
 				return false;
 			}
@@ -532,20 +541,20 @@ namespace Alex.ResourcePackLib
 				byte g = Pixels[i + 1];
 				byte r = Pixels[i + 2];
 				byte a = Pixels[i + 3]; // a
-				clr = new Color(r,g,b,a);
+				clr = Color.FromArgb(r, g, b, a);
 			}
 			if (Depth == 24) // For 24 bpp get Red, Green and Blue
 			{
 				byte b = Pixels[i];
 				byte g = Pixels[i + 1];
 				byte r = Pixels[i + 2];
-				clr =  new Color(r, g, b);
+				clr = Color.FromArgb(r, g, b);
 			}
 			if (Depth == 8)
 			// For 8 bpp get color value (Red, Green and Blue values are the same)
 			{
 				byte c = Pixels[i];
-				clr = new Color(c, c, c);
+				clr = Color.FromArgb(c, c, c);
 			}
 			return clr;
 		}

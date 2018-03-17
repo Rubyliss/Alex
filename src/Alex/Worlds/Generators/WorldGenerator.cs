@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Numerics;
 using Alex.API.World;
 using Alex.Blocks;
-using log4net;
-using Microsoft.Xna.Framework;
 using MiNET.Utils;
 using MiNET.Utils.Noise;
 using MiNET.Utils.Noise.Filter;
@@ -171,7 +170,7 @@ namespace Alex.Worlds.Generators
 			return chunk;
 		}
 
-		private static readonly ILog Log = LogManager.GetLogger(typeof(OverworldGenerator));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(OverworldGenerator));
 		private Biome GetBiome(float x, float z)
 		{
 			x /= CoordinateScale;
@@ -312,12 +311,12 @@ namespace Alex.Worlds.Generators
 
 						if (y < WaterLevel || (density > Threshold && y >= WaterLevel))
 						{
-							chunk.SetBlock(x, y, z, BlockFactory.GetBlock(1, 0));
+							chunk.SetBlockState(x, y, z, BlockFactory.GetBlockState("stone"));
 							maxY = y;
 						}
 					}
 
-					chunk.SetBlock(x, 0, z, BlockFactory.GetBlock(7,0)); //Bedrock
+					chunk.SetBlockState(x, 0, z, BlockFactory.GetBlockState("bedrock")); //Bedrock
 					heightMap[idx] = maxY;
 				}
 			}

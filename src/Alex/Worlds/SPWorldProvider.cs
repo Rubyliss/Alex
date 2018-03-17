@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Alex.API.Graphics;
@@ -9,8 +10,6 @@ using Alex.API.World;
 using Alex.Entities;
 using Alex.Utils;
 using Alex.Worlds.Generators;
-using log4net;
-using Microsoft.Xna.Framework;
 using MiNET.Blocks;
 using MiNET.Utils;
 
@@ -18,7 +17,7 @@ namespace Alex.Worlds
 {
 	public class SPWorldProvider : WorldProvider
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(SPWorldProvider));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(SPWorldProvider));
 		private readonly IWorldGenerator _generator;
 		private readonly List<ChunkCoordinates> _loadedChunks = new List<ChunkCoordinates>();
 		private ChunkCoordinates PreviousChunkCoordinates { get; set; } = new ChunkCoordinates(int.MaxValue, int.MaxValue);

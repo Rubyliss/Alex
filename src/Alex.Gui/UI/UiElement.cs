@@ -1,15 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Numerics;
 using System.Runtime.CompilerServices;
-using Alex.Graphics.Annotations;
-using Alex.Graphics.UI.Abstractions;
-using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Layout;
-using Alex.Graphics.UI.Rendering;
-using Alex.Graphics.UI.Themes;
-using Microsoft.Xna.Framework;
+using Alex.Engine.UI.Abstractions;
+using Alex.Engine.UI.Layout;
+using Alex.Engine.UI.Rendering;
+using Alex.Engine.UI.Themes;
 
-namespace Alex.Graphics.UI
+namespace Alex.Engine.UI
 {
 	public class UiElement : INotifyPropertyChanged
 	{

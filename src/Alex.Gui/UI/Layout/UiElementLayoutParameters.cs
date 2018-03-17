@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Themes;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using Alex.Engine.UI.Common;
+using Alex.Engine.UI.Themes;
+using Veldrid;
 
-namespace Alex.Graphics.UI.Layout
+namespace Alex.Engine.UI.Layout
 {
     public class UiElementLayoutParameters
     {
@@ -14,14 +13,14 @@ namespace Alex.Graphics.UI.Layout
         //public Rectangle Bounds => InnerBounds + Padding;
         //public Rectangle InnerBounds => new Rectangle(new Point(AbsolutePosition.X + Padding.Left + Margin.Left, AbsolutePosition.Y + Padding.Top + Margin.Left), new Point((int)Math.Round(Size.X), (int)Math.Round(Size.Y)));
 
-        public Rectangle OuterBounds => new Rectangle(new Point(Location.X, Location.Y), Size.ToPoint() + Padding.ToPoint() + Margin.ToPoint());
+        public Rectangle OuterBounds => new Rectangle(Location.X, Location.Y, 0,0/* Size.ToPoint() + Padding.ToPoint() + Margin.ToPoint()*/);
         public Rectangle Bounds      => OuterBounds - Margin;
         public Rectangle InnerBounds => Bounds - Padding;
 
-        public Point Location => BasePosition + RelativePosition;
+        public Point Location => new Point(BasePosition.X + RelativePosition.X, BasePosition.Y + RelativePosition.Y);// BasePosition + RelativePosition;
 
-        public Point BasePosition { get; set; } = Point.Zero;
-        public Point RelativePosition { get; set; } = Point.Zero;
+        public Point BasePosition { get; set; } = new Point(0, 0);
+        public Point RelativePosition { get; set; } = new Point(0, 0);
 
         public Thickness BorderSize { get; set; } = Thickness.Zero;
 
@@ -50,7 +49,7 @@ namespace Alex.Graphics.UI.Layout
 
         public Vector2 ContentSize { get; set; } = Vector2.Zero;
 
-        public Point MinSize { get; set; } = Point.Zero;
+        public Point MinSize { get; set; } = new Point(0,0);
         public Point? MaxSize { get; set; } = null;
 
         public Vector2? PositionAnchor { get; set; } = null;

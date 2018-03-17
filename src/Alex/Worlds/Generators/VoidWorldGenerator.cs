@@ -1,6 +1,6 @@
-﻿using Alex.API.World;
+﻿using System.Numerics;
+using Alex.API.World;
 using Alex.Blocks;
-using Microsoft.Xna.Framework;
 using MiNET.Utils;
 
 namespace Alex.Worlds.Generators

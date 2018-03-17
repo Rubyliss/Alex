@@ -1,11 +1,12 @@
-﻿using Alex.Blocks;
+﻿using System.Drawing.Drawing2D;
+using System.Numerics;
+using Alex.Blocks;
 using Alex.Entities;
 using Alex.Rendering.Camera;
 using Alex.Worlds;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MiNET.Entities;
-using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
+using MiNET.Utils;
+using Veldrid;
 
 namespace Alex.Utils
 {
@@ -13,18 +14,19 @@ namespace Alex.Utils
 	{
 		public static Vector3 Raytrace(GraphicsDevice graphics, World world, Camera camera)
 		{
-		    var projectionMatrix = camera.ProjectionMatrix;
+		   /* var projectionMatrix = camera.ProjectionMatrix;
 		    var viewMatrix = camera.ViewMatrix;
 
-			var nearsource = new Vector3(graphics.Viewport.Width / 2f,
-				graphics.Viewport.Height / 2f, 0f);
-			var farsource = new Vector3(graphics.Viewport.Width / 2f,
-				graphics.Viewport.Height / 2f, 1f);
+			var nearsource = new Vector3(Alex.Instance.Viewport.Width / 2f,
+				Alex.Instance.Viewport.Height / 2f, 0f);
+			var farsource = new Vector3(Alex.Instance.Viewport.Width / 2f,
+				Alex.Instance.Viewport.Height / 2f, 1f);
 
-			var nearPoint = graphics.Viewport.Unproject(nearsource,
-				projectionMatrix, viewMatrix, Matrix.Identity);
-			var farPoint = graphics.Viewport.Unproject(farsource,
-				projectionMatrix, viewMatrix, Matrix.Identity);
+			
+			var nearPoint = Alex.Instance.Viewport.Unproject(nearsource,
+				projectionMatrix, viewMatrix, Matrix4x4.Identity);
+			var farPoint = Alex.Instance.Viewport.Unproject(farsource,
+				projectionMatrix, viewMatrix, Matrix4x4.Identity);
 
 			var direction = farPoint - nearPoint;
 			direction.Normalize();
@@ -44,12 +46,13 @@ namespace Alex.Utils
 
 					return v;
 				}
-			}
+			}*/
 			return new Vector3(0, -255, 0);
 		}
 
 		public static bool CanSee(GraphicsDevice graphics, World world, Camera camera, Vector3 target)
 		{
+			return true;/*
 			var projectionMatrix = camera.ProjectionMatrix;
 			var viewMatrix = camera.ViewMatrix;
 
@@ -93,7 +96,7 @@ namespace Alex.Utils
 				}
 			}
 
-			return false;
+			return false;*/
 		}
 	}
 }

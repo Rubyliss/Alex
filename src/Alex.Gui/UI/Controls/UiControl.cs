@@ -1,8 +1,8 @@
 ﻿using System;
-using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Input.Listeners;
+using Alex.Engine.UI.Abstractions;
+using Alex.Engine.UI.Input.Listeners;
 
-namespace Alex.Graphics.UI.Controls
+namespace Alex.Engine.UI.Controls
 {
 	public class UiControl : UiContainer, IHoverable, IClickable
 	{

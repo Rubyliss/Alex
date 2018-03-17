@@ -1,14 +1,18 @@
-﻿using Alex.Rendering.UI;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using System.Drawing;
+using System.Numerics;
+using Alex.Engine;
+using Alex.Engine.Graphics.Sprites;
+using Alex.Graphics;
+using Alex.Rendering.UI;
+using Veldrid;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex.Gamestates.Playing
 {
 	public class InGameMenuState : GameState
 	{
 		private PlayingState State { get; }
-		public InGameMenuState(Alex alex, PlayingState playingState, KeyboardState state) : base(alex)
+		public InGameMenuState(Alex alex, PlayingState playingState, InputSnapshot state) : base(alex)
 		{
 			State = playingState;
 			PreviousKeyboardState = state;
@@ -23,12 +27,15 @@ namespace Alex.Gamestates.Playing
 			Controls.Add("returnBtn", returnButton);
 			Controls.Add("info", new Info());
 
-			Alex.IsMouseVisible = true;
+			Alex.Window.CursorVisible = true;
+			//Alex.IsMouseVisible = true;
 		}
 
 		private void ReturnButtonOnOnButtonClick()
 		{
-			Alex.IsMouseVisible = false;
+
+			Alex.Window.CursorVisible = false;
+			//Alex.IsMouseVisible = false;
 			Alex.GameStateManager.SetActiveState(State);
 		}
 
@@ -50,24 +57,24 @@ namespace Alex.Gamestates.Playing
 			Viewport viewPort = Viewport;
 			SpriteBatch sb = args.SpriteBatch;
 
-			sb.Begin();
+			sb.Begin(args.Commands);
 
-			sb.FillRectangle(new Rectangle(0, 0, viewPort.Width, viewPort.Height), new Color(Color.Black, 0.5f));
+			sb.FillRectangle(new Rectangle(0, 0, (int) viewPort.Width, (int)viewPort.Height), Color.FromArgb(128, Color.Black));// new Color(Color.Black, 0.5f));
 
 			sb.End();
 		}
 
-		private KeyboardState PreviousKeyboardState { get; set; }
+		private InputSnapshot PreviousKeyboardState { get; set; }
 		protected override void OnUpdate(GameTime gameTime)
 		{
 			Controls["returnBtn"].Location = new Vector2((int)(CenterScreen.X - 200), (int)CenterScreen.Y - 30);
 			Controls["disconnectBtn"].Location = new Vector2((int)(CenterScreen.X - 200), (int)CenterScreen.Y + 20);
 
-			if (Alex.IsActive)
+			if (Alex.Window.Focused)
 			{
 				//State.SendPositionUpdate(gameTime);
 
-				KeyboardState currentKeyboardState = Keyboard.GetState();
+				InputSnapshot currentKeyboardState = Alex.Window.PumpEvents();// Keyboard.GetState();
 				if (currentKeyboardState != PreviousKeyboardState)
 				{
 					if (currentKeyboardState.IsKeyDown(KeyBinds.Menu))

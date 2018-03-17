@@ -1,33 +1,31 @@
-﻿using System;
-using Alex.Graphics.UI.Common;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Alex.Engine.UI.Common;
+using Veldrid;
 
-namespace Alex.Graphics.Textures
+namespace Alex.Engine.Textures
 {
 	public class NinePatchTexture
 	{
 		public Thickness Padding { get; }
 
-		public Texture2D Texture { get; }
+		public Texture Texture { get; }
 
 		public Rectangle Bounds { get; set; }
 
 		public Rectangle[] SourceRegions { get; private set; }
 
-		public NinePatchTexture(Texture2D texture, Rectangle bounds, int sizeSlice = 0) : this(texture, bounds,
+		public NinePatchTexture(Texture texture, Rectangle bounds, int sizeSlice = 0) : this(texture, bounds,
 			new Thickness(sizeSlice))
 		{
 		}
-		public NinePatchTexture(Texture2D texture, Rectangle bounds, Rectangle innerSliceBounds) : this(texture, bounds,
+		public NinePatchTexture(Texture texture, Rectangle bounds, Rectangle innerSliceBounds) : this(texture, bounds,
 			new Thickness(innerSliceBounds.Left - bounds.Left, innerSliceBounds.Top - bounds.Top, bounds.Right - innerSliceBounds.Right, bounds.Bottom - innerSliceBounds.Bottom))
 		{
 		}
 
-		public NinePatchTexture(Texture2D texture, Rectangle bounds, Thickness padding)
+		public NinePatchTexture(Texture texture, Rectangle bounds, Thickness padding)
 		{
 			Texture = texture;
-			Bounds  = bounds == Rectangle.Empty ? texture.Bounds : bounds;
+			Bounds  = bounds;
 			Padding = padding;
 
 			SourceRegions = CreateRegions(Bounds);
@@ -65,9 +63,9 @@ namespace Alex.Graphics.Textures
 			return CreateRegions(rectangle);
 		}
 
-		public static explicit operator NinePatchTexture(Texture2D texture)
+		public static explicit operator NinePatchTexture(Texture texture)
 		{
-			return new NinePatchTexture(texture, texture.Bounds);
+			return new NinePatchTexture(texture, new Rectangle(0, 0, (int)texture.Width, (int)texture.Height));
 		}
 	}
 }

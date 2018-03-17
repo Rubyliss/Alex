@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Alex.Graphics.UI.Abstractions
+﻿namespace Alex.Engine.UI.Abstractions
 {
     public interface ITextElement
     {

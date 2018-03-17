@@ -1,8 +1,8 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using Veldrid;
+using Veldrid.Sdl2;
 
-namespace Alex.Graphics.UI.Input.Listeners
+namespace Alex.Engine.UI.Input.Listeners
 {
     public class MouseListener : IMouseListener
     {
@@ -31,9 +31,9 @@ namespace Alex.Graphics.UI.Input.Listeners
         public void Update(GameTime gameTime)
         {
             _lastGameTime = gameTime;
-            _currentState = Mouse.GetState();
-
-            Position = _uiManager.PointToScreen(_currentState.Position);
+            //_currentState = Mouse.GetState();
+			//_currentState = _uiManager.
+          /*  Position = _uiManager.PointToScreen(new Point(_currentState.X, _currentState.Y));
 
             var moveDelta = _lastState.Position - _currentState.Position;
             var moveDistance = (moveDelta.X * moveDelta.X) + (moveDelta.Y * moveDelta.Y);
@@ -49,7 +49,7 @@ namespace Alex.Graphics.UI.Input.Listeners
             CheckButton(s => s.XButton1, MouseButton.XButton1);
             CheckButton(s => s.XButton2, MouseButton.XButton2);
 
-            _lastState = _currentState;
+            _lastState = _currentState;*/
         }
 
         private void CheckButton(Func<MouseState, ButtonState> getButtonStateFunc, MouseButton button)
@@ -57,7 +57,7 @@ namespace Alex.Graphics.UI.Input.Listeners
             var currentState = getButtonStateFunc(_currentState);
             var lastState = getButtonStateFunc(_lastState);
 
-            if (currentState == ButtonState.Released &&
+           /* if (currentState == ButtonState.Released &&
                 lastState == ButtonState.Pressed)
             {
                 // Mouse Up
@@ -70,7 +70,7 @@ namespace Alex.Graphics.UI.Input.Listeners
                 var args = new MouseEventArgs(_lastState, _currentState, Position, button);
 
                 MouseDown?.Invoke(this, args);
-            }
+            }*/
         }
     }
 }

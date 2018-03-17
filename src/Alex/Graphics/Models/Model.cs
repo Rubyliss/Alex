@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Numerics;
 using System.Text;
 using Alex.API.Graphics;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Veldrid.Utilities;
 
 namespace Alex.Graphics.Models
 {
@@ -40,8 +41,9 @@ namespace Alex.Graphics.Models
 
 	    private static void CalculateCube()
 	    {
+		   
 
-	    }
+		}
 
 		protected class Cube
 		{
@@ -49,7 +51,7 @@ namespace Alex.Graphics.Models
 
 			private readonly Vector2 _textureSize;
 
-			public Cube(Vector3 size, Vector2 textureSize)
+			public Cube(Vector3 size, Vector2 textureSize, Vector2 uv)
 			{
 				this.Size = size;
 				this._textureSize = textureSize; //new Vector2((size.X + size.Z) * 2, size.Y + size.Z);
@@ -65,6 +67,13 @@ namespace Alex.Graphics.Models
 				_btmLeftBack = new Vector3(0.0f, 0.0f, 1.0f) * Size;
 				_btmRightFront = new Vector3(1.0f, 0.0f, 0.0f) * Size;
 				_btmRightBack = new Vector3(1.0f, 0.0f, 1.0f) * Size;
+
+				Front = GetFrontVertex(uv);
+				Back = GetBackVertex(uv);
+				Left = GetLeftVertex(uv);
+				Right = GetRightVertex(uv);
+				Top = GetTopVertex(uv);
+				Bottom = GetBottomVertex(uv);
 			}
 
 			public VertexPositionNormalTexture[] Front, Back, Left, Right, Top, Bottom;
@@ -77,16 +86,6 @@ namespace Alex.Graphics.Models
 			private readonly Vector3 _btmLeftBack;
 			private readonly Vector3 _btmRightFront;
 			private readonly Vector3 _btmRightBack;
-
-			public void BuildCube(Vector2 uv)
-			{
-				Front = GetFrontVertex(uv);
-				Back = GetBackVertex(uv);
-				Left = GetLeftVertex(uv);
-				Right = GetRightVertex(uv);
-				Top = GetTopVertex(uv);
-				Bottom = GetBottomVertex(uv);
-			}
 
 			private VertexPositionNormalTexture[] GetLeftVertex(Vector2 uv)
 			{

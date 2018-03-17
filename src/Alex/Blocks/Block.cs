@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Numerics;
 using Alex.API.Blocks.State;
 using Alex.API.Graphics;
 using Alex.API.World;
@@ -7,18 +9,15 @@ using Alex.Blocks.State;
 using Alex.Graphics.Models;
 
 using Alex.Utils;
-using log4net;
-using Microsoft.Xna.Framework;
 using MiNET;
 using MiNET.Entities;
 using MiNET.Utils;
-using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
 
 namespace Alex.Blocks
 {
 	public class Block : IBlock
 	{
-	    private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
+	    private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(Block));
 	    
 		public uint BlockStateID { get; }
 
@@ -67,10 +66,10 @@ namespace Alex.Blocks
 		    SetColor(TextureSide.All, Color.White);
 		}
 
-		public Microsoft.Xna.Framework.BoundingBox GetBoundingBox(Vector3 blockPosition)
+		public BoundingBox GetBoundingBox(Vector3 blockPosition)
 	    {
 			if (BlockModel == null)
-				return new Microsoft.Xna.Framework.BoundingBox(blockPosition, blockPosition + Vector3.One);
+				return new BoundingBox(blockPosition, blockPosition + Vector3.One);
 
 		    return BlockModel.GetBoundingBox(blockPosition, this);
 		}

@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
-using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Layout;
-using Alex.Graphics.UI.Rendering;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using Alex.Engine.UI.Layout;
+using Alex.Engine.UI.Rendering;
+using Veldrid;
 
-namespace Alex.Graphics.UI
+namespace Alex.Engine.UI
 {
 	public class UiContainer : UiElement
 	{
@@ -97,7 +95,7 @@ namespace Alex.Graphics.UI
 				foreach (var control in controls)
 				{
 					control.UpdateLayoutInternal();
-					control.LayoutParameters.BasePosition = layout.InnerBounds.Location;
+					control.LayoutParameters.BasePosition = new Point(layout.InnerBounds.X, layout.InnerBounds.Y);
 				}
 			}
 
@@ -124,7 +122,7 @@ namespace Alex.Graphics.UI
 				
 				if (cLayout.SizeAnchor.HasValue)
 				{
-					var newSize = layout.InnerBounds.Size.ToVector2() * cLayout.SizeAnchor.Value;
+					var newSize = new Vector2(layout.InnerBounds.Width, layout.InnerBounds.Height) * cLayout.SizeAnchor.Value;
 
 					cLayout.AutoSize = new Vector2(cLayout.SizeAnchor.Value.X < 0 ? cLayout.Size.X : newSize.X, cLayout.SizeAnchor.Value.Y < 0 ? cLayout.Size.Y : newSize.Y);
 				}
@@ -132,7 +130,7 @@ namespace Alex.Graphics.UI
 				if (cLayout.PositionAnchor.HasValue)
 				{
 					cLayout.RelativePosition = (
-						(layout.InnerBounds.Size.ToVector2() * cLayout.PositionAnchor.Value) + cLayout.InnerBounds.Size.ToVector2() * (cLayout.PositionAnchorOrigin)
+						(new Vector2(layout.InnerBounds.Width, layout.InnerBounds.Height) * cLayout.PositionAnchor.Value) + new Vector2(cLayout.InnerBounds.Width, cLayout.InnerBounds.Height) * (cLayout.PositionAnchorOrigin)
 						- (cLayout.Size * cLayout.SizeAnchorOrigin)
 					).ToPoint();
 				}

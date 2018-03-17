@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Alex.Engine</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;DESKTOPGL</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="6.2.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="2.7.0" />
+    <PackageReference Include="NLog" Version="4.5.0-rc07" />
+    <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0003" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0002" />
+    <PackageReference Include="Veldrid" Version="4.1.1" />
+    <PackageReference Include="Veldrid.ImageSharp" Version="4.1.1" />
+    <PackageReference Include="Veldrid.ImGui" Version="4.1.1" />
+    <PackageReference Include="Veldrid.OpenGLBindings" Version="4.1.1" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="4.1.1" />
+    <PackageReference Include="Veldrid.Utilities" Version="4.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ShaderGen">
+      <HintPath>..\External\ShaderGen.dll</HintPath>
+    </Reference>
+    <Reference Include="ShaderGen.Primitives">
+      <HintPath>..\External\ShaderGen.Primitives.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

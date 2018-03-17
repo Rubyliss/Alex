@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Alex.Graphics.UI.Common;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using Alex.Engine.UI.Common;
+using Veldrid;
 
-namespace Alex.Graphics.UI.Layout
+namespace Alex.Engine.UI.Layout
 {
 	public class UiStackPanel : UiContainer
 	{

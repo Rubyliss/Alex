@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Drawing.Drawing2D;
+using System.Numerics;
 using Alex.Utils;
-using Microsoft.Xna.Framework;
+using Veldrid.Utilities;
+
 
 namespace Alex.Rendering.Camera
 {
@@ -11,11 +14,11 @@ namespace Alex.Rendering.Camera
         /// <summary>
         /// 
         /// </summary>
-        public Matrix ProjectionMatrix { get; set; }
+        public Matrix4x4 ProjectionMatrix { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public Matrix ViewMatrix { get; set; }
+        public Matrix4x4 ViewMatrix { get; set; }
 
 	    /// <summary>
         /// 
@@ -66,16 +69,16 @@ namespace Alex.Rendering.Camera
         /// </summary>
         protected void UpdateLookAt()
         {
-            Matrix rotationMatrix = Matrix.CreateRotationX(Rotation.X) *
-                                  Matrix.CreateRotationY(Rotation.Y);
+	        Matrix4x4 rotationMatrix = Matrix4x4.CreateRotationX(Rotation.X) *
+                                    Matrix4x4.CreateRotationY(Rotation.Y);
 
             Vector3 lookAtOffset = Vector3.Transform(Vector3.UnitZ, rotationMatrix);
 
             Target = Position + lookAtOffset;
 
-            Direction = Vector3.Transform(Vector3.Forward, rotationMatrix);
+            Direction = Vector3.Transform(Vector3.UnitZ, rotationMatrix);
 
-			ViewMatrix = Matrix.CreateLookAt(Position, Target, Vector3.Up);
+			ViewMatrix = Matrix4x4.CreateLookAt(Position, Target, Vector3.UnitY);
 		}
     }
 }

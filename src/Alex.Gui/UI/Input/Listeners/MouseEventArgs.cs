@@ -1,8 +1,8 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using Veldrid;
+using Veldrid.Sdl2;
 
-namespace Alex.Graphics.UI.Input.Listeners
+namespace Alex.Engine.UI.Input.Listeners
 {
     public class MouseEventArgs : EventArgs
     {
@@ -22,8 +22,8 @@ namespace Alex.Graphics.UI.Input.Listeners
             Button = buttons;
 
             Position = position;
-            ScrollWheelValue = currentState.ScrollWheelValue;
-            ScrollWheelDelta = previousState.ScrollWheelValue - currentState.ScrollWheelValue;
+          //  ScrollWheelValue = currentState.ScrollWheelValue;
+         //   ScrollWheelDelta = previousState.ScrollWheelValue - currentState.ScrollWheelValue;
         }
 
     }

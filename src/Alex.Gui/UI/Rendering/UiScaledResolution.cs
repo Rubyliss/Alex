@@ -1,8 +1,7 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Veldrid;
 
-namespace Alex.Graphics.UI.Rendering
+namespace Alex.Engine.UI.Rendering
 {
 	public class UiScaleEventArgs : EventArgs
 	{
@@ -68,23 +67,27 @@ namespace Alex.Graphics.UI.Rendering
 		}
 
 		private GraphicsDevice Graphics { get; }
-		private Viewport       Viewport => Graphics.Viewport;
+		private Game GameInstance { get; }
+	//	private Viewport       Viewport => Graphics.Viewport;
 
 		public UiScaledResolution(Game game)
 		{
+			GameInstance = game;
 			Graphics = game.GraphicsDevice;
 
-			Graphics.DeviceReset          += (sender, args) => Update();
-			game.Window.ClientSizeChanged += (sender, args) => Update();
-			game.Activated                += (sender, args) => Update();
+		//	Graphics.DeviceReset          += (sender, args) => Update();
+			game.Window.Resized += Update;
+			game.Window.FocusGained += Update;
+			game.Window.Shown += Update;
+		//	game.Activated                += (sender, args) => Update();
 
 			Update();
 		}
 
 		public void Update()
 		{
-			var viewportWidth  = Graphics.PresentationParameters.BackBufferWidth;
-			var viewportHeight = Graphics.PresentationParameters.BackBufferHeight;
+			var viewportWidth  = GameInstance.Window.Width;
+			var viewportHeight = GameInstance.Window.Height;
 
 			var scaleFactor = 1;
 

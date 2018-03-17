@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Numerics;
 using System.Text;
 using Alex.API.Graphics;
 using Alex.Gamestates;
 using Alex.Graphics.Models;
 using Alex.Graphics.Models.Entity;
 using Alex.Rendering.Camera;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
@@ -76,13 +77,13 @@ namespace Alex.Utils
 
 		public static void RenderNametag(this Entity entity, IRenderArgs renderArgs, Camera camera)
 		{
-			Vector2 textPosition;
+			/*Vector2 textPosition;
 
 			// calculate screenspace of text3d space position
 			var screenSpace = renderArgs.GraphicsDevice.Viewport.Project(Vector3.Zero,
 				camera.ProjectionMatrix,
 				camera.ViewMatrix,
-				Matrix.CreateTranslation(entity.KnownPosition.ToXnaVector3() + new Vector3(0, (float) entity.Height, 0)));
+				Matrix4x4.CreateTranslation(entity.KnownPosition.ToXnaVector3() + new Vector3(0, (float) entity.Height, 0)));
 
 
 			// get 2D position from screenspace vector
@@ -101,7 +102,7 @@ namespace Alex.Utils
 			textPosition.Y = (int)(textPosition.Y - c.Y);
 
 			renderArgs.SpriteBatch.FillRectangle(new Rectangle(textPosition.ToPoint(), c), new Color(Color.Black, 128));
-			renderArgs.SpriteBatch.DrawString(Alex.Font, clean, textPosition, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
+			renderArgs.SpriteBatch.DrawString(Alex.Font, clean, textPosition, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);*/
 		}
 	}
 

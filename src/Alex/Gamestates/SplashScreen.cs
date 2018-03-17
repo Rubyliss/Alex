@@ -1,5 +1,4 @@
 ﻿using Alex.Rendering.UI;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Alex.Gamestates
 {
@@ -12,7 +11,7 @@ namespace Alex.Gamestates
 
 		protected override void OnLoad(RenderArgs args)
 		{
-			Controls.Add("logo", new Logo()
+			Controls.Add("logo", new Logo(Alex)
 			{
 				DrawMotd = false,
 				Center = true

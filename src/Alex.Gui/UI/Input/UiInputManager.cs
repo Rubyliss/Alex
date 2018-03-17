@@ -1,7 +1,6 @@
-﻿using Alex.Graphics.UI.Input.Listeners;
-using Microsoft.Xna.Framework;
+﻿using Alex.Engine.UI.Input.Listeners;
 
-namespace Alex.Graphics.UI.Input
+namespace Alex.Engine.UI.Input
 {
     public class UiInputManager : IInputManager
     {

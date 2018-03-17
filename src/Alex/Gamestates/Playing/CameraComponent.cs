@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Numerics;
 using Alex.Blocks;
+using Alex.Engine;
 using Alex.Entities;
+using Alex.Graphics;
 using Alex.Rendering.Camera;
+using Alex.Utils;
 using Alex.Worlds;
-using log4net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
+using MiNET.Utils;
+using Veldrid;
+using Veldrid.Sdl2;
 
 namespace Alex.Gamestates.Playing
 {
@@ -22,8 +24,8 @@ namespace Alex.Gamestates.Playing
 	    private float FlyingSpeed = 10f;
 
         private MouseState PreviousMouseState { get; set; }
-        private float _leftrightRot = MathHelper.PiOver2;
-        private float _updownRot = -MathHelper.Pi / 10.0f;
+        private float _leftrightRot = MathF.PI;
+        private float _updownRot = -MathF.PI / 10.0f;
 
         public bool IsJumping { get; private set; }
         public bool IsFreeCam { get; set; }
@@ -47,8 +49,8 @@ namespace Alex.Gamestates.Playing
             Velocity = Vector3.Zero;
             Drag = Vector3.Zero;
 
-            Mouse.SetPosition(graphics.Viewport.Width / 2, graphics.Viewport.Height / 2);
-            PreviousMouseState = Mouse.GetState();
+           // Mouse.SetPosition(graphics.Viewport.Width / 2, graphics.Viewport.Height / 2);
+         //   PreviousMouseState = Mouse.GetState();
         }
 
 		private bool _inActive = true;
@@ -61,7 +63,7 @@ namespace Alex.Gamestates.Playing
             var moveVector = Vector3.Zero;
             if (checkInput)
             {
-                var currentKeyboardState = Keyboard.GetState();
+                var currentKeyboardState = Alex.Instance.Window.PumpEvents();
                 if (currentKeyboardState.IsKeyDown(KeyBinds.Forward))
                     moveVector.Z = 1;
 
@@ -118,13 +120,13 @@ namespace Alex.Gamestates.Playing
 
 	        if (checkInput)
 	        {
-		        if (_inActive)
+		    /*    if (_inActive)
 		        {
 			        _inActive = false;
 					Mouse.SetPosition(Graphics.Viewport.Width / 2, Graphics.Viewport.Height / 2);
 			        PreviousMouseState = Mouse.GetState();
 		        }
-		        MouseState currentMouseState = Mouse.GetState();
+		      //  MouseState currentMouseState = Mouse.GetState();
 		        if (currentMouseState != PreviousMouseState)
 		        {
 			        float xDifference = currentMouseState.X - PreviousMouseState.X;
@@ -134,15 +136,15 @@ namespace Alex.Gamestates.Playing
 
 			        _leftrightRot -= mouseModifier * xDifference * dt;
 			        _updownRot -= mouseModifier * yDifference * dt;
-			        _updownRot = MathHelper.Clamp(_updownRot, MathHelper.ToRadians(-89.0f),
-				        MathHelper.ToRadians(89.0f));
+			        _updownRot = MathUtils.Clamp(_updownRot, MathUtils.ToRadians(-89.0f),
+				        MathUtils.ToRadians(89.0f));
 
 					Camera.Rotation = new Vector3(-_updownRot, MathHelper.WrapAngle(_leftrightRot), 0);
 		        }
 
 		        Mouse.SetPosition(Graphics.Viewport.Width / 2, Graphics.Viewport.Height / 2);
-
-		        PreviousMouseState = Mouse.GetState();
+				*/
+		      //  PreviousMouseState = Mouse.GetState();
 	        }
 	        else if (!_inActive)
 	        {
@@ -150,7 +152,7 @@ namespace Alex.Gamestates.Playing
 	        }
         }
 
-	    private static readonly ILog Log = LogManager.GetLogger(typeof(CameraComponent));
+	    private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(CameraComponent));
 
         private void DoPhysics(bool originalJumpValue, Vector3 direction, float dt)
         {

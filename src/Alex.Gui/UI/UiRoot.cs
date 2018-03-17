@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
-using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Input;
-using Alex.Graphics.UI.Input.Listeners;
-using Alex.Graphics.UI.Layout;
-using Alex.Graphics.UI.Rendering;
-using Microsoft.Xna.Framework;
+using Alex.Engine.UI.Abstractions;
+using Alex.Engine.UI.Input;
+using Alex.Engine.UI.Input.Listeners;
+using Alex.Engine.UI.Layout;
+using Alex.Engine.UI.Rendering;
+using Veldrid;
 
-namespace Alex.Graphics.UI
+namespace Alex.Engine.UI
 {
     public class UiRoot : UiContainer
     {

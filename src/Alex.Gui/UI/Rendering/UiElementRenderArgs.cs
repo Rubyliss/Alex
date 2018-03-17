@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Alex.Graphics.UI.Layout;
-using Alex.Graphics.UI.Themes;
-using Microsoft.Xna.Framework;
+﻿using System.Numerics;
+using Alex.Engine.UI.Layout;
+using Alex.Engine.UI.Themes;
+using Veldrid;
 
-namespace Alex.Graphics.UI.Rendering
+namespace Alex.Engine.UI.Rendering
 {
     public class UiElementRenderArgs
     {
@@ -29,7 +27,7 @@ namespace Alex.Graphics.UI.Rendering
             ContentBounds = Element.LayoutParameters.InnerBounds;
             LayoutBounds = Element.LayoutParameters.OuterBounds;
 
-            Position = ContentBounds.Location.ToVector2();
+            Position = new Vector2(ContentBounds.X, ContentBounds.Y);
 
             Style = Element.Style;
             Layout = Element.LayoutParameters;

@@ -1,7 +1,6 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 
-namespace Alex.Graphics.UI.Input.Listeners
+namespace Alex.Engine.UI.Input.Listeners
 {
 	public interface IMouseListener
 	{

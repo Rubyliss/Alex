@@ -39,30 +39,6 @@ namespace Alex.Blocks.Storage.Pallete
 			return _statePaletteMap.Get(indexKey);
 		}
 
-		/*@SideOnly(Side.CLIENT)
-	
-		public void read(PacketBuffer buf)
-		{
-			this.statePaletteMap.clear();
-			int i = buf.readVarInt();
-	
-			for (int j = 0; j < i; ++j)
-			{
-				this.statePaletteMap.add(Block.BLOCK_STATE_IDS.getByValue(buf.readVarInt()));
-			}
-		}
-	
-		public void write(PacketBuffer buf)
-		{
-			int i = this.statePaletteMap.size();
-			buf.writeVarInt(i);
-	
-			for (int j = 0; j < i; ++j)
-			{
-				buf.writeVarInt(Block.BLOCK_STATE_IDS.get(this.statePaletteMap.get(j)));
-			}
-		}*/
-
 		public int GetSerializedSize()
 		{
 			int i = BlockState.GetVarIntSize(this._statePaletteMap.Size());

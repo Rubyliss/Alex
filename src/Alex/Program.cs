@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using log4net;
-using log4net.Config;
 
 namespace Alex
 {
@@ -12,20 +10,14 @@ namespace Alex
 	/// </summary>
 	public static class Program
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Program));
-
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
 		static void Main()
 		{
-			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
-
 			using (var game = new Alex())
 			{
-				game.Init();
 				game.Run();
 			}
 

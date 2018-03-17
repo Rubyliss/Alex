@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using Alex.API.Graphics;
+using Alex.Engine;
 using Alex.Entities;
 using Alex.Gamestates;
+using Alex.Graphics;
 using Alex.Utils;
 using Alex.Worlds;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+
 using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Utils;
-using ContainmentType = Microsoft.Xna.Framework.ContainmentType;
+using Veldrid;
 
 namespace Alex.Rendering
 {
@@ -51,7 +53,7 @@ namespace Alex.Rendering
 		    {
 			    var entityBox = entity.GetBoundingBox();
 
-				if (camera.BoundingFrustum.Contains(new Microsoft.Xna.Framework.BoundingBox(entityBox.Min.ToXnaVector3(), entityBox.Max.ToXnaVector3())) != ContainmentType.Disjoint)
+				if (camera.BoundingFrustum.Contains(new Veldrid.Utilities.BoundingBox(entityBox.Min, entityBox.Max)) != Veldrid.Utilities.ContainmentType.Disjoint)
 			    {
 				    entity.GetModelRenderer()?.Render(args, camera, entity.KnownPosition.ToXnaVector3(), entity.KnownPosition.Yaw, entity.KnownPosition.Pitch);
 				    renderCount++;
@@ -71,8 +73,8 @@ namespace Alex.Rendering
 			    var entityBox = entity.GetBoundingBox();
 
 			    if (camera.BoundingFrustum.Contains(
-				        new Microsoft.Xna.Framework.BoundingBox(entityBox.Min.ToXnaVector3(), entityBox.Max.ToXnaVector3())) !=
-			        ContainmentType.Disjoint)
+				        new Veldrid.Utilities.BoundingBox(entityBox.Min, entityBox.Max)) !=
+			        Veldrid.Utilities.ContainmentType.Disjoint)
 			    {
 				    entity.RenderNametag(args, camera);
 			    }

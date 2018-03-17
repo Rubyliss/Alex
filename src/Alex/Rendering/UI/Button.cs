@@ -1,9 +1,14 @@
-﻿using Alex.Gamestates;
+﻿using System.Drawing;
+using System.Numerics;
+using Alex.Engine;
+using Alex.Engine.Graphics.Sprites;
+using Alex.Gamestates;
+using Alex.Graphics;
 using Alex.Utils;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
+using SharpDX.Direct3D11;
+using Veldrid;
+using Veldrid.Sdl2;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex.Rendering.UI
 {
@@ -14,8 +19,8 @@ namespace Alex.Rendering.UI
         public event OnClickedDelegate OnButtonClick;
 
         private Rectangle ButtonRectangle { get; set; }
-        private Texture2D ButtonTexture { get; set; }
-        private Texture2D HoverTexture { get; set; }
+        private Texture ButtonTexture { get; set; }
+        private Texture HoverTexture { get; set; }
         private bool Hovering { get; set; }
         public string Text { get; set; }
         public Button(string text)
@@ -24,7 +29,7 @@ namespace Alex.Rendering.UI
             Hovering = false;
             Size = new Vector2(400, 40);
 
-            PrevMouseState = Mouse.GetState();
+          //  PrevMouseState = Mouse.GetState();
         }
 
         public override void Render(RenderArgs args)
@@ -35,7 +40,7 @@ namespace Alex.Rendering.UI
 		        ButtonTexture = TextureUtils.ImageToTexture2D(args.GraphicsDevice, Resources.ButtonState1);
 			}
 
-            args.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            args.SpriteBatch.Begin(args.Commands, SpriteSortMode.Deferred);
 
 			ButtonRectangle = new Rectangle((int) Location.X,(int) Location.Y, (int) Size.X, (int) Size.Y);
             args.SpriteBatch.Draw(Hovering ? HoverTexture : ButtonTexture, ButtonRectangle, Color.Cornsilk);
@@ -52,7 +57,7 @@ namespace Alex.Rendering.UI
         private MouseState PrevMouseState { get; set; }
         public override void Update(GameTime time)
         {
-            var ms = Mouse.GetState();
+           /*var ms = Mouse.GetState();
             var mouseRec = new Rectangle(ms.X, ms.Y, 1, 1);
 
             if (mouseRec.Intersects(ButtonRectangle))
@@ -70,7 +75,7 @@ namespace Alex.Rendering.UI
             {
                 Hovering = false;
             }
-            PrevMouseState = ms;
+            PrevMouseState = ms;*/
         }
     }
 }

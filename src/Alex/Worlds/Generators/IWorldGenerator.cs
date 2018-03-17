@@ -1,5 +1,5 @@
-﻿using Alex.API.World;
-using Microsoft.Xna.Framework;
+﻿using System.Numerics;
+using Alex.API.World;
 using MiNET.Utils;
 
 namespace Alex.Worlds.Generators

@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Drawing;
+using System.Numerics;
 using Alex.API.World;
 using Alex.Blocks;
-using Alex.Graphics.Overlays;
+using Alex.Engine;
+using Alex.Graphics;
 using Alex.Rendering.Camera;
 using Alex.Rendering.UI;
 using Alex.Utils;
 using Alex.Worlds;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+
 using MiNET;
 using MiNET.Utils;
+using Veldrid;
+using Veldrid.Sdl2;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex.Gamestates.Playing
 {
@@ -21,7 +25,7 @@ namespace Alex.Gamestates.Playing
 		private CameraComponent CamComponent { get; }
 
 		private FpsMonitor FpsCounter { get; set; }
-		private Texture2D CrosshairTexture { get; set; }
+		private Texture CrosshairTexture { get; set; }
 
 		private ChatComponent Chat { get; }
 
@@ -56,9 +60,9 @@ namespace Alex.Gamestates.Playing
 		private TimeSpan _previousMemUpdate = TimeSpan.Zero;
 		protected override void OnUpdate(GameTime gameTime)
 		{
-			if (Alex.IsActive)
+			if (Alex.Window.Focused)
 			{
-				var newAspectRatio = Graphics.Viewport.AspectRatio;
+				var newAspectRatio = Alex.Viewport.Width / Alex.Viewport.Height;// Graphics.Viewport.AspectRatio;
 				if (AspectRatio != newAspectRatio)
 				{
 					Camera.UpdateAspectRatio(newAspectRatio);
@@ -122,23 +126,23 @@ namespace Alex.Gamestates.Playing
 
 			if (RenderWireframe)
 			{
-				Graphics.RasterizerState.FillMode = FillMode.WireFrame;
+				//Graphics.RasterizerState.FillMode = FillMode.WireFrame;
 			}
 			else
 			{
-				Graphics.RasterizerState.FillMode = FillMode.Solid;
+		//		Graphics.RasterizerState.FillMode = FillMode.Solid;
 			}
 		}
 
 		private Block SelBlock { get; set; } = new Air();
-		private Microsoft.Xna.Framework.BoundingBox RayTraceBoundingBox { get; set; }
+		private BoundingBox RayTraceBoundingBox { get; set; }
 		private bool RenderDebug { get; set; } = true;
 
-		private KeyboardState _oldKeyboardState;
+		private InputSnapshot _oldKeyboardState;
 		private MouseState _oldMouseState;
 		protected void CheckInput(GameTime gameTime)
 		{
-			MouseState currentMouseState = Mouse.GetState();
+			/*MouseState currentMouseState = Mouse.GetState();
 			if (currentMouseState != _oldMouseState)
 			{
 				if (currentMouseState.LeftButton == ButtonState.Pressed)
@@ -158,9 +162,11 @@ namespace Alex.Gamestates.Playing
 					}
 				}
 			}
-			_oldMouseState = currentMouseState;
+			_oldMouseState = currentMouseState;*/
 
-			KeyboardState currentKeyboardState = Keyboard.GetState();
+			var currentKeyboardState = Alex.Window.PumpEvents();
+			
+		//	KeyboardState currentKeyboardState = Keyboard.GetState();
 			if (currentKeyboardState != _oldKeyboardState)
 			{
 				if (currentKeyboardState.IsKeyDown(KeyBinds.Menu))
@@ -205,18 +211,18 @@ namespace Alex.Gamestates.Playing
 		{
 			try
 			{
-				args.SpriteBatch.Begin();
+				args.SpriteBatch.Begin(args.Commands);
 
 
 				if (_renderWaterOverlay)
 				{
 					//Start draw background
-					var retval = new Microsoft.Xna.Framework.Rectangle(
+				/*	var retval = new Rectangle(
 						args.SpriteBatch.GraphicsDevice.Viewport.X,
 						args.SpriteBatch.GraphicsDevice.Viewport.Y,
 						args.SpriteBatch.GraphicsDevice.Viewport.Width,
 						args.SpriteBatch.GraphicsDevice.Viewport.Height);
-					args.SpriteBatch.FillRectangle(retval, new Color(Color.DarkBlue, 0.5f));
+					args.SpriteBatch.FillRectangle(retval, new Color(Color.DarkBlue, 0.5f));*/
 					//End draw backgroun
 				}
 
@@ -226,7 +232,7 @@ namespace Alex.Gamestates.Playing
 				if (_raytracedBlock.Y > 0 && _raytracedBlock.Y < 256)
 				{
 					args.SpriteBatch.RenderBoundingBox(
-						RayTraceBoundingBox,
+						new Veldrid.Utilities.BoundingBox(RayTraceBoundingBox.Min, RayTraceBoundingBox.Max), 
 						Camera.ViewMatrix, Camera.ProjectionMatrix, Color.LightGray);
 				}
 
@@ -255,17 +261,21 @@ namespace Alex.Gamestates.Playing
 
 		private void DebugRight(RenderArgs args)
 		{
-			var screenWidth = args.GraphicsDevice.Viewport.Width;
+			var bounds = Alex.Window.Bounds;
+		
+			var screenWidth = bounds.Width;
 			//var device = args.GraphicsDevice.Adapter.DeviceName;
 			var positionString = "";
 			var meisured = Vector2.Zero;
 			int y = 0;
 
+			var backColor = Color.FromArgb(64, Color.Black);
+
 			positionString = Alex.DotnetRuntime;
 			meisured = Alex.Font.MeasureString(positionString);
 
 			args.SpriteBatch.FillRectangle(new Rectangle(screenWidth - (int)meisured.X, y, (int)meisured.X, (int)meisured.Y),
-				new Color(Color.Black, 64));
+				backColor);
 			args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(screenWidth - (int)meisured.X, y), Color.White);
 
 			y += (int)meisured.Y;
@@ -274,7 +284,7 @@ namespace Alex.Gamestates.Playing
 			meisured = Alex.Font.MeasureString(positionString);
 
 			args.SpriteBatch.FillRectangle(new Rectangle(screenWidth - (int)meisured.X, y, (int)meisured.X, (int)meisured.Y),
-				new Color(Color.Black, 64));
+				backColor);
 			args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(screenWidth - (int)meisured.X, y), Color.White);
 
 			y += (int)meisured.Y;
@@ -285,7 +295,7 @@ namespace Alex.Gamestates.Playing
 				meisured = Alex.Font.MeasureString(positionString);
 
 				args.SpriteBatch.FillRectangle(new Rectangle(screenWidth - (int) meisured.X, y, (int) meisured.X, (int) meisured.Y),
-					new Color(Color.Black, 64));
+					backColor);
 				args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(screenWidth - (int) meisured.X, y), Color.White);
 
 				y += (int) meisured.Y;
@@ -294,7 +304,7 @@ namespace Alex.Gamestates.Playing
 				meisured = Alex.Font.MeasureString(positionString);
 
 				args.SpriteBatch.FillRectangle(new Rectangle(screenWidth - (int) meisured.X, y, (int) meisured.X, (int) meisured.Y),
-					new Color(Color.Black, 64));
+					backColor);
 				args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(screenWidth - (int) meisured.X, y), Color.White);
 
 				if (SelBlock.BlockState != null)
@@ -308,7 +318,7 @@ namespace Alex.Gamestates.Playing
 						meisured = Alex.Font.MeasureString(positionString);
 
 						args.SpriteBatch.FillRectangle(new Rectangle(screenWidth - (int)meisured.X, y, (int)meisured.X, (int)meisured.Y),
-							new Color(Color.Black, 64));
+							backColor);
 						args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(screenWidth - (int)meisured.X, y), Color.White);
 					}
 				}
@@ -321,8 +331,10 @@ namespace Alex.Gamestates.Playing
 					 Math.Round(FpsCounter.Value), World.ChunkUpdates);
 			var meisured = Alex.Font.MeasureString(fpsString);
 
+			var backColor = Color.FromArgb(64, Color.Black);
+
 			args.SpriteBatch.FillRectangle(new Rectangle(0, 0, (int)meisured.X, (int)meisured.Y),
-				new Color(Color.Black, 64));
+				backColor);
 			args.SpriteBatch.DrawString(Alex.Font,
 				fpsString, new Vector2(0, 0),
 				Color.White);
@@ -332,7 +344,7 @@ namespace Alex.Gamestates.Playing
 			meisured = Alex.Font.MeasureString(positionString);
 
 			args.SpriteBatch.FillRectangle(new Rectangle(0, y, (int)meisured.X, (int)meisured.Y),
-				new Color(Color.Black, 64));
+				backColor);
 			args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(0, y), Color.White);
 
 			y += (int)meisured.Y;
@@ -342,7 +354,7 @@ namespace Alex.Gamestates.Playing
 			meisured = Alex.Font.MeasureString(positionString);
 
 			args.SpriteBatch.FillRectangle(new Rectangle(0, y, (int)meisured.X, (int)meisured.Y),
-				new Color(Color.Black, 64));
+				backColor);
 			args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(0, y), Color.White);
 
 			y += (int)meisured.Y;
@@ -352,7 +364,7 @@ namespace Alex.Gamestates.Playing
 			meisured = Alex.Font.MeasureString(positionString);
 
 			args.SpriteBatch.FillRectangle(new Rectangle(0, y, (int)meisured.X, (int)meisured.Y),
-				new Color(Color.Black, 64));
+				backColor);
 			args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(0, y), Color.White);
 
 			y += (int)meisured.Y;
@@ -361,7 +373,7 @@ namespace Alex.Gamestates.Playing
 			meisured = Alex.Font.MeasureString(positionString);
 
 			args.SpriteBatch.FillRectangle(new Rectangle(0, y, (int)meisured.X, (int)meisured.Y),
-				new Color(Color.Black, 64));
+				backColor);
 			args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(0, y), Color.White);
 
 			y += (int)meisured.Y;
@@ -370,7 +382,7 @@ namespace Alex.Gamestates.Playing
 			meisured = Alex.Font.MeasureString(positionString);
 
 			args.SpriteBatch.FillRectangle(new Rectangle(0, y, (int)meisured.X, (int)meisured.Y),
-				new Color(Color.Black, 64));
+				backColor);
 			args.SpriteBatch.DrawString(Alex.Font, positionString, new Vector2(0, y), Color.White);
 		}
 

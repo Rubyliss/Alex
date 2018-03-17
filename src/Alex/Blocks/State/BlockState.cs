@@ -7,98 +7,35 @@ using Alex.API.Blocks.Properties;
 using Alex.API.Blocks.State;
 using Alex.API.World;
 
-namespace Alex.Blocks.State {
+namespace Alex.Blocks.State
+{
 
-	public abstract class StateProperty : IStateProperty
+	public sealed class BlockStateVariantMapper
 	{
-		public static Dictionary<string, StateProperty> _registeredTypes = new Dictionary<string, StateProperty>(StringComparer.InvariantCultureIgnoreCase);
-		public string Name { get; }
-		public Type PropertyType { get; }
+		
+		private BlockState Default;
 
-		protected StateProperty(string name, Type propertyType)
-		{
-			Name = name;
-			PropertyType = propertyType;
-
-			_registeredTypes.TryAdd(name, this);
-		}
-
-		public abstract object ValueFromString(string value);
-		public abstract object[] GetValidValues();
-
-		public static StateProperty Parse(string name)
-		{
-			if (_registeredTypes.TryGetValue(name, out StateProperty property))
-			{
-				return property;
-			}
-
-			return new UnknownProperty(name);
-		}
-
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != this.GetType()) return false;
-			return Equals((StateProperty) obj);
-		}
-
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				return ((Name != null ? Name.GetHashCode() : 0) * 397) /*^ (PropertyType != null ? PropertyType.GetHashCode() : 0)*/;
-			}
-		}
-
-		public bool Equals(IStateProperty other)
-		{
-			return other.Name.Equals(Name, StringComparison.InvariantCultureIgnoreCase) ;/*&&
-			       other.PropertyType.IsEquivalentTo(PropertyType);*/
-		}
-	}
-
-	public class UnknownProperty : StateProperty
-	{
-		public UnknownProperty(string name) : base(name, typeof(string))
-		{
-		}
-
-		public override object ValueFromString(string value)
-		{
-			return value;
-		}
-
-		public override object[] GetValidValues()
-		{
-			return new object[0];
-		}
-	}
-
-	public abstract class StateProperty<TType> : StateProperty, IStateProperty<TType>
-	{
-		protected StateProperty(string name) : base(name, typeof(TType))
+		public BlockStateVariantMapper()
 		{
 
 		}
 
-		public abstract TType ParseValue(string value);
-		public abstract string ToString(TType v);
-
-		public override object ValueFromString(string value)
+		public IBlockState GetDefaultState()
 		{
-			return ParseValue(value);
+			return Default;
 		}
 	}
 
 	public sealed class BlockState : IBlockState, IEquatable<BlockState>
 	{
 		private Dictionary<IStateProperty, object> _values { get; set; }
+		public readonly List<IBlockState> Variants = new List<IBlockState>();
+		//public Dictionary<>
 
 		public BlockState()
 		{
 			_values = new Dictionary<IStateProperty, object>(new EqualityCompare());
+			//Variants = new List<IBlockState>();
 		}
 
 		public string Name { get; set; }
@@ -134,8 +71,46 @@ namespace Alex.Blocks.State {
 			return null;
 		}
 
+		private bool TryResolve(IStateProperty property, object value, out IBlockState result)
+		{
+			/*var valuesCopied = new Dictionary<IStateProperty, object>(_values, new EqualityCompare());
+			valuesCopied[property] = value;
+
+			var v = Variants.Find(state =>
+			{
+				if (Equals(state, this)) return false;
+
+				var s =state;
+				foreach (var e in valuesCopied)
+				{
+					if (!s.TryGetValue(e.Key, out object val) || !val.Equals(e.Value))
+					{
+						return false;
+					}
+				}
+
+				return true;
+			});
+
+			if (v != null)
+			{
+				result = v;
+				return true;
+			}
+
+			result = null;*/
+			result = null;
+			return false;
+		}
+
 		public IBlockState WithProperty(IStateProperty property, object value)
 		{
+			if (TryResolve(property, value, out IBlockState result))
+			{
+				return result;
+			}
+
+
 			if (!_values.TryAdd(property, value))
 			{
 				_values[property] = value;
@@ -145,6 +120,7 @@ namespace Alex.Blocks.State {
 
 		public IBlockState WithProperty<T>(IStateProperty<T> property, T value)
 		{
+			///return WithProperty((IStateProperty)property, value);
 			if (_values.ContainsKey(property))
 			{
 				_values[property] = value;
@@ -190,10 +166,16 @@ namespace Alex.Blocks.State {
 			return false;
 		}
 
+		public IBlockState Default = null;
 		public IBlock Block = new Air();
 		public IBlock GetBlock()
 		{
 			return Block;
+		}
+
+		public IBlockState GetDefaultState()
+		{
+			return Default;
 		}
 
 		public bool Equals(BlockState other)
@@ -321,7 +303,7 @@ namespace Alex.Blocks.State {
 			BlockState bs = new BlockState();
 			bs.Name = Name;
 			bs.ID = ID;
-			bs._values = new Dictionary<IStateProperty, object>(_values.ToArray());
+			bs._values = new Dictionary<IStateProperty, object>(_values, new EqualityCompare());
 			return bs;
 		}
 

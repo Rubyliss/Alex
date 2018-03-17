@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
+using System.Numerics;
 using System.Text;
+using Alex.Engine.Textures;
+using Alex.Engine.UI;
+using Alex.Engine.UI.Common;
+using Alex.Engine.UI.Controls;
+using Alex.Engine.UI.Controls.Menu;
+using Alex.Engine.UI.Themes;
 using Alex.Graphics;
-using Alex.Graphics.Textures;
-using Alex.Graphics.UI;
-using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Controls;
-using Alex.Graphics.UI.Controls.Menu;
-using Alex.Graphics.UI.Layout;
-using Alex.Graphics.UI.Themes;
 using Alex.ResourcePackLib;
 using Alex.ResourcePackLib.Json;
 using Alex.ResourcePackLib.Json.Textures;
 using Alex.Utils;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+
 using Newtonsoft.Json;
+using SharpDX.Direct3D11;
+using Veldrid;
 
 namespace Alex.Rendering
 {
@@ -95,7 +97,7 @@ namespace Alex.Rendering
 			});
 			Theme.AddClass("TitleScreenMenuPanel", new UiElementStyle()
 			{
-				BackgroundColor = new Color(Color.Black, 0.2f),
+				BackgroundColor = Color.FromArgb(25, Color.Black),// new Color(Color.Black, 0.2f),
 				PositionAnchor  = new Vector2(0.15f, 0.0f),
 				Width           = 120,
 				SizeAnchor      = new Vector2(0f, 1f)
@@ -163,7 +165,7 @@ namespace Alex.Rendering
 			{
 				MinWidth                   = 80,
 				TextFont                   = Alex.Font,
-				TextColor                  = Color.FromNonPremultiplied(0x4C, 0x4C, 0x4C, 0xFF),
+				TextColor                  = Color.FromArgb(0x4C, 0x4C, 0x4C, 0xFF),
 				TextSize                   = 0.5f,
 				Padding                    = new Thickness(5, 10),
 				Margin                     = new Thickness(5),
@@ -176,7 +178,7 @@ namespace Alex.Rendering
 			{
 				MinWidth                   = 80,
 				TextFont                   = Alex.Font,
-				TextColor                  = Color.FromNonPremultiplied(0x4C, 0x4C, 0x4C, 0xFF),
+				TextColor                  = Color.FromArgb(0x4C, 0x4C, 0x4C, 0xFF),
 				TextSize                   = 0.5f,
 				Padding                    = new Thickness(5, 10),
 				Margin                     = new Thickness(5),
@@ -201,14 +203,15 @@ namespace Alex.Rendering
 			return texture;
 		}
 
-		private Texture2D LoadTexture2D(string fileName)
+		private Texture LoadTexture2D(string fileName)
 		{
 			if (ResourcePack.TryGetTexture($"textures/ui/{fileName}", out var bitmap))
 			{
 				return TextureUtils.BitmapToTexture2D(Graphics, bitmap);
 			}
 
-			var texture = new Texture2D(Graphics, 2, 2, false, SurfaceFormat.Color);
+			return null;
+			/*var texture = new Texture(Graphics, 2, 2, false, SurfaceFormat.Color);
 			texture.SetData(new[]
 			{
 				Color.Black,
@@ -217,10 +220,10 @@ namespace Alex.Rendering
 				Color.Black
 			});
 
-			return texture;
+			return texture;*/
 		}
 
-		private TextureInfoJson GetTextureInfo(string fileName, Texture2D texture, bool forceNineSlice = false)
+		private TextureInfoJson GetTextureInfo(string fileName, Texture texture, bool forceNineSlice = false)
 		{
 			if (ResourcePack.TryGetTextureJson($"textures/ui/{fileName}", out var info))
 			{
@@ -237,7 +240,7 @@ namespace Alex.Rendering
 
 				return new TextureInfoJson()
 				{
-					BaseSize      = new int[] {w, h},
+					BaseSize      = new int[] {(int) w, (int) h},
 					NineSliceSize = new[] {sliceSizeX, sliceSizeY}
 				};
 			}

@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Alex.API.Graphics;
+using Alex.Engine;
+using Alex.Engine.Graphics.Sprites;
+using Alex.Engine.UI;
 using Alex.Graphics;
-using Alex.Graphics.UI;
 using Alex.Rendering.UI;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+
+
+using Veldrid;
 
 namespace Alex.Gamestates
 {
@@ -24,17 +28,16 @@ namespace Alex.Gamestates
 			Alex = alex;
 			Graphics = alex.GraphicsDevice;
 			Controls = new Dictionary<string, UIComponent>();
-
 		}
 
-		public Viewport Viewport => Graphics.Viewport;
+		public Viewport Viewport => new Viewport(Alex.Window.X, Alex.Window.Y, Alex.Window.Width, Alex.Window.Height, 0, 1);
 
 		public Vector2 CenterScreen
 		{
 			get
 			{
-				return new Vector2((Graphics.Viewport.Width / 2f),
-					(Graphics.Viewport.Height / 2f));
+				return new Vector2((Viewport.Width / 2f),
+					(Viewport.Height / 2f));
 			}
 		}
 
@@ -111,6 +114,7 @@ namespace Alex.Gamestates
 		public GameTime GameTime { get; set; }
 		public GraphicsDevice GraphicsDevice { get; set; }
 		public SpriteBatch SpriteBatch { get; set; }
+		public CommandList Commands { get; set; }
 	}
 
 	public class UpdateArgs : IUpdateArgs

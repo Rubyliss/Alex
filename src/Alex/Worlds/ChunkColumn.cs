@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Alex.API.Blocks.State;
 using Alex.API.Graphics;
 using Alex.API.World;
 using Alex.Blocks;
 using Alex.Blocks.Storage;
+using Alex.Engine.Graphics;
+using Alex.Graphics;
 using fNbt.Tags;
-using log4net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MiNET.Worlds;
+using Veldrid;
 
 namespace Alex.Worlds
 {
 	public class ChunkColumn : IChunkColumn
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ChunkColumn));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(ChunkColumn));
 
 		public const int ChunkHeight = 256;
 		public const int ChunkWidth = 16;
@@ -255,7 +256,7 @@ namespace Alex.Worlds
 		{
 			if (VertexBuffer != null)
 			{
-				if (!VertexBuffer.IsDisposed)
+			//	if (!VertexBuffer.IsDisposed)
 				{
 					VertexBuffer.Dispose();
 				}
@@ -265,7 +266,7 @@ namespace Alex.Worlds
 
 			if (TransparentVertexBuffer != null)
 			{
-				if (!TransparentVertexBuffer.IsDisposed)
+				//if (!TransparentVertexBuffer.IsDisposed)
 				{
 					TransparentVertexBuffer.Dispose();
 				}

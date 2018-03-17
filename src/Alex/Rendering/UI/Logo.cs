@@ -1,7 +1,10 @@
-﻿using Alex.Gamestates;
+﻿using System.Drawing;
+using System.Numerics;
+using Alex.Engine;
+using Alex.Gamestates;
+using Alex.Graphics;
 using Alex.Utils;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Veldrid;
 
 namespace Alex.Rendering.UI
 {
@@ -32,20 +35,23 @@ namespace Alex.Rendering.UI
         private float _scale = 1.0f;
         private string _splashText = "";
 
-	    private Texture2D WoodTexture { get; set; } = null;
-	    private Texture2D GrassTexture { get; set; } = null;
+	    private Texture WoodTexture { get; set; } = null;
+	    private Texture GrassTexture { get; set; } = null;
 	    public bool DrawMotd { get; set; } = true;
 	    public bool Center { get; set; } = false;
 
-        public Logo()
+		private Alex Game { get; }
+        public Logo(Alex alex)
         {
+	        Game = alex;
             if (_splashText == "") _splashText = SplashTexts.GetSplashText();
         }
 
         private Vector2 CenterScreen(GraphicsDevice graphics)
         {
-            return new Vector2((graphics.Viewport.Width/2f),
-                (graphics.Viewport.Height/2f));
+		//	return new Vector2(0, 0);
+            return new Vector2(Game.Viewport.X + (( Game.Viewport.Width)/2f),
+	            Game.Viewport.Y + (( Game.Viewport.Height)/2f));
         }
 
         public override void Update(GameTime time)
@@ -61,7 +67,7 @@ namespace Alex.Rendering.UI
 		        GrassTexture = TextureUtils.ImageToTexture2D(args.GraphicsDevice, Resources.grass);
 			}
 
-            args.SpriteBatch.Begin();
+            args.SpriteBatch.Begin(args.Commands);
             Vector2 centerScreen = CenterScreen(args.GraphicsDevice);
 
 	        int totalX = 0;
@@ -137,14 +143,14 @@ namespace Alex.Rendering.UI
 			        args.SpriteBatch.DrawString(Alex.Font, _splashText, new Vector2(centerScreen.X + (totalX / 2f), y /*+ (textSize.X / 2)*/), Color.Gold,
 				        -0.6f,
 				        textSize /2f, 
-				        new Vector2(_scale, _scale), 0f, 0f);
+				        new Vector2(_scale, _scale));
 		        }
 		        catch
 		        {
 			        args.SpriteBatch.DrawString(Alex.Font, "Free bugs for everyone!", new Vector2(centerScreen.X + 186, 140),
 				        Color.Gold,
 				        -0.6f, new Vector2(),
-				        new Vector2(_scale, _scale), 0f, 0f);
+				        new Vector2(_scale, _scale));
 		        }
 	        }
 

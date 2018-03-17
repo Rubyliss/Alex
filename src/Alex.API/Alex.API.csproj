@@ -6,21 +6,22 @@
 
   <ItemGroup>
     <PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
-    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="NLog" Version="4.5.0-rc07" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="MiNET">
-      <HintPath>..\Alex\MiNET.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\External\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\External\MiNET.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Data\Tags\" />
     <Folder Include="World\Storage\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Alex.Gui\Alex.Engine.csproj" />
   </ItemGroup>
 
 </Project>

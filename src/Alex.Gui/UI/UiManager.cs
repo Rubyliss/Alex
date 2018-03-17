@@ -1,11 +1,10 @@
-﻿using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Input;
-using Alex.Graphics.UI.Rendering;
-using Alex.Graphics.UI.Themes;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Alex.Engine.Graphics.Sprites;
+using Alex.Engine.UI.Input;
+using Alex.Engine.UI.Rendering;
+using Alex.Engine.UI.Themes;
+using Veldrid;
 
-namespace Alex.Graphics.UI
+namespace Alex.Engine.UI
 {
 	public class UiManager
 	{
@@ -72,9 +71,9 @@ namespace Alex.Graphics.UI
 			Root.Update(gameTime);
 		}
 
-		public void Draw(GameTime gameTime)
+		public void Draw(GameTime gameTime, CommandList commandList)
 		{
-			Renderer.BeginDraw();
+			Renderer.BeginDraw(commandList);
 			Root.Draw(gameTime, Renderer);
 			Renderer.EndDraw();
 		}

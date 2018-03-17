@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using log4net;
-using Microsoft.Xna.Framework;
+using Alex.Engine;
+
 
 namespace Alex.API.World
 {
     public class TickManager
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(TickManager));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(TickManager));
 
 		private IWorld World { get; }
 		private ConcurrentDictionary<Action, long> _scheduledTicks { get; }

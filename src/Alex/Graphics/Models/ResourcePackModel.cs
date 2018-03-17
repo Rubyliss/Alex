@@ -5,23 +5,12 @@ using Alex.API.World;
 using Alex.Blocks;
 using Alex.Utils;
 using Alex.Worlds;
-using log4net;
-using Microsoft.Xna.Framework;
-using MiNET.Utils;
-using MiNET.Worlds;
-using Alex.ResourcePackLib.Json;
-using Alex.ResourcePackLib.Json.BlockStates;
-using Alex.ResourcePackLib.Json.Models;
-using Alex.ResourcePackLib.Json.Models.Blocks;
-using Axis = Alex.ResourcePackLib.Json.Axis;
-using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
-using V3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Alex.Graphics.Models
 {
-    public class ResourcePackModel : BlockModel
+    /*public class ResourcePackModel : BlockModel
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ResourcePackModel));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(ResourcePackModel));
 		
         protected BlockStateModel[] Variant { get; set; }
 		protected ResourceManager Resources { get; }
@@ -30,168 +19,11 @@ namespace Alex.Graphics.Models
 		{
 			Resources = resources;
             Variant = variant;
-
-			CalculateBoundingBox();
         }
 
 		protected ResourcePackModel(ResourceManager resources)
 		{
 			Resources = resources;
-		}
-
-		protected void CalculateBoundingBox()
-		{
-			var c = new V3(8f, 8f, 8f);
-
-			foreach (var var in Variant)
-			{
-				var modelRotationMatrix = GetModelRotationMatrix(var);
-				foreach (var element in var.Model.Elements)
-				{
-					Matrix faceRotationMatrix = Matrix.CreateTranslation(-c) * modelRotationMatrix *
-					                            Matrix.CreateTranslation(c);
-
-					var faceStart = new V3((element.From.X), (element.From.Y),
-						                (element.From.Z));
-
-					var faceEnd = new V3((element.To.X), (element.To.Y),
-						              (element.To.Z));
-
-					faceStart = V3.Transform(faceStart, faceRotationMatrix);
-					faceEnd = V3.Transform(faceEnd, faceRotationMatrix);
-
-					faceStart /= 16f;
-					faceEnd /= 16f;
-					/*
-					if (faceEnd.X > Max.X)
-					{
-						Max.X = faceEnd.X;
-					}
-
-					if (faceEnd.Y > Max.Y)
-					{
-						Max.Y = faceEnd.Y;
-					}
-
-					if (faceEnd.Z > Max.Z)
-					{
-						Max.Z = faceEnd.Z;
-					}
-
-					if (faceStart.X < Min.X)
-					{
-						Min.X = faceStart.X;
-					}
-
-					if (faceStart.Y < Min.Y)
-					{
-						Min.Y = faceStart.Y;
-					}
-
-					if (faceStart.Z < Min.Z)
-					{
-						Min.Z = faceStart.Z;
-					}*/
-					Max = Vector3.Max(Max, Vector3.Max(faceStart, faceEnd));
-					Min = Vector3.Min(Min, Vector3.Min(faceStart, faceEnd));
-				}
-			}
-		}
-
-		protected Matrix GetElementRotationMatrix(BlockModelElementRotation elementRotation, out float rescale)
-		{
-			Matrix faceRotationMatrix = Matrix.Identity;
-			float ci = 0f;
-			
-			if (elementRotation.Axis != Axis.Undefined)
-			{
-				var elementRotationOrigin = new Vector3(elementRotation.Origin.X , elementRotation.Origin.Y, elementRotation.Origin.Z);
-
-				//var elementAngle =
-				//	MathUtils.ToRadians((float)(elementRotation.Axis == Axis.X ? -elementRotation.Angle : elementRotation.Angle));
-				//elementAngle = elementRotation.Axis == Axis.Z ? elementAngle : -elementAngle;
-				var elementAngle = MathUtils.ToRadians((float) elementRotation.Angle);
-				ci = 1f / (float)Math.Cos(elementAngle);
-
-				faceRotationMatrix = Matrix.CreateTranslation(-elementRotationOrigin);
-				if (elementRotation.Axis == Axis.X)
-				{
-					faceRotationMatrix *= Matrix.CreateRotationX(elementAngle);
-				}
-				else if (elementRotation.Axis == Axis.Y)
-				{
-					faceRotationMatrix *= Matrix.CreateRotationY(elementAngle);
-				}
-				else if (elementRotation.Axis == Axis.Z)
-				{
-					faceRotationMatrix *= Matrix.CreateRotationZ(elementAngle);
-				}
-
-				faceRotationMatrix *= Matrix.CreateTranslation(elementRotationOrigin);
-			}
-
-			rescale = ci;
-			return faceRotationMatrix;
-		}
-
-		protected void GetFaceValues(string facename, BlockFace originalFace, out BlockFace face, out V3 offset)
-		{
-			V3 cullFace = V3.Zero;
-
-			BlockFace cull;
-			if (!Enum.TryParse(facename, out cull))
-			{
-				cull = originalFace;
-			}
-			switch (cull)
-			{
-				case BlockFace.Up:
-					cullFace = V3.Up;
-					break;
-				case BlockFace.Down:
-					cullFace = V3.Down;
-					break;
-				case BlockFace.North:
-					cullFace = V3.Backward;
-					break;
-				case BlockFace.South:
-					cullFace = V3.Forward;
-					break;
-				case BlockFace.West:
-					cullFace = V3.Left;
-					break;
-				case BlockFace.East:
-					cullFace = V3.Right;
-					break;
-			}
-
-			offset = cullFace;
-			face = cull;
-		}
-
-		protected Matrix GetModelRotationMatrix(BlockStateModel model)
-		{
-			return Matrix.CreateRotationX((float)MathUtils.ToRadians(360f - model.X)) *
-			       Matrix.CreateRotationY((float)MathUtils.ToRadians(360f - model.Y));
-		}
-
-		protected string ResolveTexture(BlockStateModel var, string texture)
-		{
-			string textureName = "no_texture";
-			if (!var.Model.Textures.TryGetValue(texture.Replace("#", ""), out textureName))
-			{
-				textureName = texture;
-			}
-
-			if (textureName.StartsWith("#"))
-			{
-				if (!var.Model.Textures.TryGetValue(textureName.Replace("#", ""), out textureName))
-				{
-					textureName = "no_texture";
-				}
-			}
-
-			return textureName;
 		}
 
 		private V3 Min = V3.Zero;
@@ -254,10 +86,10 @@ namespace Alex.Graphics.Models
 								/*if (world.ChunkManager.TryGetChunk(
 									new ChunkCoordinates(new PlayerLocation(worldPosition.X, 0, worldPosition.Z)),
 									out IChunkColumn column))*/
-							{
+						//	{
 								//	Worlds.ChunkColumn realColumn = (Worlds.ChunkColumn) column;
-								var biome = BiomeUtils.GetBiomeById(biomeId
-									/*realColumn.GetBiome((int) worldPosition.X & 0xf, (int) worldPosition.Z & 0xf)*/);
+								//var biome = BiomeUtils.GetBiomeById(biomeId
+									/*realColumn.GetBiome((int) worldPosition.X & 0xf, (int) worldPosition.Z & 0xf)/);
 
 								if (baseBlock.BlockId == 2)
 								{
@@ -325,5 +157,5 @@ namespace Alex.Graphics.Models
 		{
 			return new V3(x.X, y.Y, z.Z);
 		}
-	}
+	}*/
 }

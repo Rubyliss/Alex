@@ -1,11 +1,8 @@
 ﻿using System;
-using Alex.Graphics.UI.Abstractions;
-using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Input.Listeners;
-using Alex.Graphics.Utils;
-using Microsoft.Xna.Framework;
+using Alex.Engine.UI.Abstractions;
+using Alex.Engine.UI.Input.Listeners;
 
-namespace Alex.Graphics.UI.Controls.Menu
+namespace Alex.Engine.UI.Controls.Menu
 {
 	public class UiMenuItem : UiControl, ITextElement
 	{

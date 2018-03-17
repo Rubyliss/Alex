@@ -7,15 +7,14 @@ using Alex.Entities;
 using Alex.Rendering;
 using Alex.ResourcePackLib;
 using Alex.Utils;
-using log4net;
-using Microsoft.Xna.Framework.Graphics;
+using Veldrid;
 using ZipFile = ICSharpCode.SharpZipLib.Zip.ZipFile;
 
 namespace Alex
 {
     public class ResourceManager
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(ResourceManager));
+        private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(ResourceManager));
 
 		public McResourcePack ResourcePack { get; private set; }
 		public BedrockResourcePack BedrockResourcePack { get; private set; }

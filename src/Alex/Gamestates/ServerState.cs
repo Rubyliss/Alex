@@ -1,9 +1,13 @@
-﻿using System.Net;
+﻿using System.Drawing;
+using System.Net;
+using System.Numerics;
+using Alex.Engine;
 using Alex.Gamestates.Playing;
+using Alex.Graphics;
 using Alex.Rendering.UI;
 using Alex.Utils;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Veldrid;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex.Gamestates
 {
@@ -14,14 +18,15 @@ namespace Alex.Gamestates
 
 		}
 
-		private Texture2D BackGround { get; set; }
+		private Texture BackGround { get; set; }
 
 		protected override void OnLoad(RenderArgs args)
 		{
 			BackGround = TextureUtils.ImageToTexture2D(args.GraphicsDevice, Resources.mcbg);
 
 			//Alex.ShowMouse();
-			Alex.IsMouseVisible = true;
+			Alex.Window.CursorVisible = true;
+		//	Alex.IsMouseVisible = true;
 
 			Controls.Add("server-ip", new InputField()
 			{
@@ -53,7 +58,7 @@ namespace Alex.Gamestates
 
 			Controls.Add("backbtn", backbton);
 
-			Controls.Add("logo", new Logo());
+			Controls.Add("logo", new Logo(Alex));
 			Controls.Add("info", new Info());
 		}
 
@@ -97,14 +102,15 @@ namespace Alex.Gamestates
 		private string ErrorText = string.Empty;
 		protected override void OnDraw2D(RenderArgs args)
 		{
-			args.SpriteBatch.Begin();
+			args.SpriteBatch.Begin(args.Commands);
 
+			var bounds = Alex.Window.Bounds;
 			//Start draw background
 			var retval = new Rectangle(
-				args.SpriteBatch.GraphicsDevice.Viewport.X,
-				args.SpriteBatch.GraphicsDevice.Viewport.Y,
-				args.SpriteBatch.GraphicsDevice.Viewport.Width,
-				args.SpriteBatch.GraphicsDevice.Viewport.Height);
+				bounds.X,
+				bounds.Y,
+				bounds.Width,
+				bounds.Height);
 			args.SpriteBatch.Draw(BackGround, retval, Color.White);
 			//End draw backgroun
 

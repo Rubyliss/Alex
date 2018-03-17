@@ -1,25 +1,30 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Threading;
+using Alex.Engine;
+using Alex.Engine.Graphics.Sprites;
+using Alex.Engine.UI;
 using Alex.Gamestates;
 using Alex.Graphics;
-using Alex.Graphics.UI;
 using Alex.Rendering;
-using log4net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
+using SharpDX.Direct3D11;
+using Veldrid;
+using BlendStateDescription = Veldrid.BlendStateDescription;
+using CommandList = Veldrid.CommandList;
+using DepthStencilStateDescription = Veldrid.DepthStencilStateDescription;
+using RasterizerStateDescription = Veldrid.RasterizerStateDescription;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex
 {
-	public partial class Alex : Microsoft.Xna.Framework.Game
+	public partial class Alex : Game
 	{
-		private static ILog Log = LogManager.GetLogger(typeof(Alex));
-
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(Alex));
+		
 		public static string DotnetRuntime { get; } =
 			$"{System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}";
 
@@ -38,49 +43,45 @@ namespace Alex
 
 		public UiManager UiManager { get; private set; }
 
-		public Alex()
+		public Alex() : base()
 		{
 			Instance = this;
 
-			var graphics = new GraphicsDeviceManager(this)
-			{
-				PreferMultiSampling = false,
-				SynchronizeWithVerticalRetrace = false,
-				GraphicsProfile = GraphicsProfile.Reach
-			};
+			//var graphics = new GraphicsDeviceManager(this)
+		//	{
+		//		PreferMultiSampling = false,
+		//		SynchronizeWithVerticalRetrace = false,
+		//	/	GraphicsProfile = GraphicsProfile.Reach
+		//	};
 			Content.RootDirectory = "assets";
 
 			IsFixedTimeStep = false;
          //   _graphics.ToggleFullScreen();
 			
 			Username = "";
-			this.Window.AllowUserResizing = true;
-			this.Window.ClientSizeChanged += (sender, args) =>
+			
+			//this.Window.AllowUserResizing = true;
+			this.Window.Resized += () =>
 			{
-				if (graphics.PreferredBackBufferWidth != Window.ClientBounds.Width ||
+				/*if (graphics.PreferredBackBufferWidth != Window.ClientBounds.Width ||
 					graphics.PreferredBackBufferHeight != Window.ClientBounds.Height)
 				{
 					graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
 					graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
 					graphics.ApplyChanges();
-				}
+				}*/
 
 			};
 			UiManager = new UiManager(this);
 		}
 
-		public static EventHandler<TextInputEventArgs> OnCharacterInput;
+		public static EventHandler<KeyEvent> OnCharacterInput;
 
-		private void Window_TextInput(object sender, TextInputEventArgs e)
+		private void Window_TextInput(KeyEvent e)
 		{
 			OnCharacterInput?.Invoke(this, e);
 		}
-
-		public void Init()
-		{
-
-		}
-
+		
 		public void SaveSettings()
 		{
 			if (GameSettings.IsDirty)
@@ -94,7 +95,7 @@ namespace Alex
 
 		protected override void Initialize()
 		{
-			Window.Title = "Alex - " + Version;
+			//Window.Title = "Alex - " + Version;
 
 			if (File.Exists("settings.json"))
 			{
@@ -105,7 +106,7 @@ namespace Alex
 				}
 				catch (Exception ex)
 				{
-					Log.Warn($"Failed to load settings!", ex);
+					Log.Warn(ex, $"Failed to load settings!");
 				}
 			}
 			else
@@ -115,14 +116,18 @@ namespace Alex
 			}
 
 			// InitCamera();
-			this.Window.TextInput += Window_TextInput;
+			this.Window.KeyDown += Window_TextInput;
 
 			base.Initialize();
 		}
 
+		private CommandList _commandList;
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteBatch(GraphicsDevice);
+			_spriteBatch = new SpriteBatch(this, GraphicsDevice, Content);
+			_commandList = GraphicsDevice.ResourceFactory.CreateCommandList();
+		//	_commandList.SetPipeline(GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(new GraphicsPipelineDescription(BlendStateDescription.SingleAlphaBlend, DepthStencilStateDescription.Disabled, RasterizerStateDescription.CullNone, PrimitiveTopology.TriangleStrip, )));
+
 			UiManager.Init(GraphicsDevice, _spriteBatch);
 			GameStateManager = new GameStateManager(GraphicsDevice, _spriteBatch, UiManager);
 
@@ -144,29 +149,50 @@ namespace Alex
 
 			UiManager.Update(gameTime);
 			GameStateManager.Update(gameTime);
+
 		}
 
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
-			GraphicsDevice.Clear(Color.SkyBlue);
+			_commandList.Begin();
 
-			GameStateManager.Draw(gameTime);
+			_commandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
+			_commandList.SetViewport(0, Viewport);
+			_commandList.SetFullViewports();
+
+			_commandList.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
+
+			_spriteBatch.Begin(_commandList);
+			GameStateManager.Draw(gameTime, _commandList);
 
 			base.Draw(gameTime);
-			UiManager.Draw(gameTime);
+			UiManager.Draw(gameTime, _commandList);
+
+			_spriteBatch.FillRectangle(new Rectangle(50, 50, 50, 50), Color.Tomato);
+			_spriteBatch.End();
+
+			_commandList.End();
+			GraphicsDevice.SubmitCommands(_commandList);
+		
+			GraphicsDevice.WaitForIdle();
+			GraphicsDevice.SwapBuffers();
 		}
 
 		private void InitializeGame()
 		{
 			Extensions.Init(GraphicsDevice);
 
+			if (!Directory.Exists("assets"))
+			{
+				Directory.CreateDirectory("assets");
+			}
+
 			if (!File.Exists(Path.Combine("assets", "Minecraftia.xnb")))
 			{
 				File.WriteAllBytes(Path.Combine("assets", "Minecraftia.xnb"), global::Alex.Resources.Minecraftia1);
 			}
 
-			Font = Content.Load<SpriteFont>("Minecraftia");
+			//Font = 
 			//var shader = Content.Load<EffectContent>(Path.Combine("shaders", "hlsl", "renderchunk.vertex"));
 			
 			Log.Info($"Loading blockstate metadata...");
@@ -180,7 +206,7 @@ namespace Alex
 				return;
 			}
 
-			Mouse.SetPosition(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+// 			Mouse.SetPosition(Viewport.Width / 2, Viewport.Height / 2);
 
 			UiManager.Theme = Resources.UiThemeFactory.GetTheme();
 

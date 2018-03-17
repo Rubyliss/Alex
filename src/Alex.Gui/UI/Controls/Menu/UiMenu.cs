@@ -1,7 +1,7 @@
 ﻿using System;
-using Alex.Graphics.UI.Layout;
+using Alex.Engine.UI.Layout;
 
-namespace Alex.Graphics.UI.Controls.Menu
+namespace Alex.Engine.UI.Controls.Menu
 {
 	public class UiMenu : UiStackPanel
 	{

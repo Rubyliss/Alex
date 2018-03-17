@@ -1,4 +1,4 @@
-﻿namespace Alex.Graphics.UI.Layout
+﻿namespace Alex.Engine.UI.Layout
 {
     public class UiPanel : UiContainer
     {

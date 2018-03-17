@@ -1,6 +1,7 @@
-﻿using Alex.Gamestates;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using System.Drawing;
+using Alex.Engine.Graphics.Sprites;
+using Alex.Gamestates;
+using Alex.Graphics;
 
 namespace Alex.Rendering.UI
 {
@@ -18,7 +19,7 @@ namespace Alex.Rendering.UI
 
         public override void Render(RenderArgs args)
         {
-            args.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            args.SpriteBatch.Begin(args.Commands, SpriteSortMode.Deferred);
             try
             {
                 foreach (var line in Text.Split('\n'))

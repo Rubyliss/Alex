@@ -4,16 +4,16 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using log4net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using System.Numerics;
+using NLog;
+using SharpDX.Direct3D11;
+using Veldrid;
 
 namespace Alex.Utils
 {
     public class AtlasGenerator
     {
-	    private static readonly ILog Log = LogManager.GetLogger(typeof(AtlasGenerator));
-	    
+	    private static readonly Logger Log = LogManager.GetCurrentClassLogger(typeof(AtlasGenerator));
         private void CopyRegionIntoImage(Bitmap srcBitmap, System.Drawing.Rectangle srcRegion, ref Bitmap destBitmap,
             System.Drawing.Rectangle destRegion)
         {
@@ -25,7 +25,7 @@ namespace Alex.Utils
 
 	    private Dictionary<string, TextureInfo> _atlasLocations = new Dictionary<string, TextureInfo>();
 
-	    private Texture2D _atlas;
+	    private Texture _atlas;
 	    public Vector2 AtlasSize { get; private set; }
 		private Bitmap Atlas { get; set; } = null;
 	    private GraphicsDevice Graphics { get; }
@@ -39,7 +39,7 @@ namespace Alex.Utils
 	        Log.Info("Generating texture map...");
 
 			string path = Path.Combine("assets", "minecraft", "textures", "blocks");
-
+			
 			var bitmaps = archive.Entries.Where(x =>
 				x.FullName.Replace('/', '\\').StartsWith(path, StringComparison.InvariantCultureIgnoreCase) && x.Name.EndsWith(".png")).ToDictionary(entry => Path.GetFileNameWithoutExtension(entry.Name), file =>
 			{
@@ -221,7 +221,7 @@ namespace Alex.Utils
 			//modifiedBitmap.Save("debug.png", ImageFormat.Png);
 		}
 
-	    public Texture2D GetAtlas()
+	    public Texture GetAtlas()
 	    { 
 		    return _atlas;
 	    }

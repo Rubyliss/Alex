@@ -1,9 +1,6 @@
-﻿using Alex.Graphics.UI.Abstractions;
-using Alex.Graphics.UI.Rendering;
-using Alex.Graphics.Utils;
-using Microsoft.Xna.Framework;
+﻿using Alex.Engine.UI.Abstractions;
 
-namespace Alex.Graphics.UI.Controls
+namespace Alex.Engine.UI.Controls
 {
 	public class UiLabel : UiElement, ITextElement
 	{

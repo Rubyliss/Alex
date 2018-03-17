@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\kenny\.nuget\packages\nlog.config\4.5.0-rc07\contentFiles\any\any\nlog.config" t="Include" />
+    <e p="C:\Users\kenny\.Rider2017.3\system\resharper-host\local\Transient\ReSharperHost\v11\SolutionCaches\_Alex.-88143243.00" t="ExcludeRecursive" />
+    <e p="D:\GitHub\Alex\src" t="IncludeFlat">
+      <e p="Alex" t="IncludeRecursive">
+        <e p="Alex.cs" t="Include" />
+        <e p="Alex.csproj" t="IncludeRecursive" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="BlockData.cs" t="Include" />
+        <e p="BlockFactory.cs" t="Include" />
+        <e p="Blocks" t="Include">
+          <e p="Air.cs" t="Include" />
+          <e p="Block.cs" t="Include" />
+          <e p="BlockRegistry.cs" t="Include" />
+          <e p="Door.cs" t="Include" />
+          <e p="FlowingLava.cs" t="Include" />
+          <e p="FlowingWater.cs" t="Include" />
+          <e p="InvisibleBedrock.cs" t="Include" />
+          <e p="Lava.cs" t="Include" />
+          <e p="Lever.cs" t="Include" />
+          <e p="Material.cs" t="Include" />
+          <e p="Properties" t="Include">
+            <e p="DynamicStateProperty.cs" t="Include" />
+            <e p="PropertyBool.cs" t="Include" />
+            <e p="PropertyFacing.cs" t="Include" />
+            <e p="UnknownProperty.cs" t="Include" />
+          </e>
+          <e p="State" t="Include">
+            <e p="BlockState.cs" t="Include" />
+            <e p="StateProperty.cs" t="Include" />
+          </e>
+          <e p="Storage" t="Include">
+            <e p="BlockStateContainer.cs" t="Include" />
+            <e p="ExtendedBlockStorage.cs" t="Include" />
+            <e p="FlexibleStorage.cs" t="Include" />
+            <e p="IntIdentityHashBiMap.cs" t="Include" />
+            <e p="Pallete" t="Include">
+              <e p="BlockStatePaletteHashMap.cs" t="Include" />
+              <e p="BlockstatePaletteLinear.cs" t="Include" />
+              <e p="BlockStatePaletteRegistry.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Water.cs" t="Include" />
+          <e p="WoodenDoor.cs" t="Include" />
+        </e>
+        <e p="Entities" t="Include">
+          <e p="Entity.cs" t="Include" />
+          <e p="EntityFactory.cs" t="Include" />
+          <e p="LivingEntity.cs" t="Include" />
+          <e p="Player.cs" t="Include" />
+        </e>
+        <e p="Extensions.cs" t="Include" />
+        <e p="Gamestates" t="Include">
+          <e p="Gamestate.cs" t="Include" />
+          <e p="GamestateManager.cs" t="Include" />
+          <e p="LoadingWorldState.cs" t="Include" />
+          <e p="OptionsState.cs" t="Include" />
+          <e p="Playing" t="Include">
+            <e p="CameraComponent.cs" t="Include" />
+            <e p="InGameMenuState.cs" t="Include" />
+            <e p="PlayingState.cs" t="Include" />
+          </e>
+          <e p="ServerState.cs" t="Include" />
+          <e p="SplashScreen.cs" t="Include" />
+          <e p="TitleState.cs" t="Include" />
+        </e>
+        <e p="Graphics" t="Include">
+          <e p="Items" t="Include" />
+          <e p="Models" t="Include">
+            <e p="BlockModel.cs" t="Include" />
+            <e p="CachedResourcePackModel.cs" t="Include" />
+            <e p="Entity" t="Include">
+              <e p="EntityModelRenderer.cs" t="Include" />
+            </e>
+            <e p="LiquidBlockModel.cs" t="Include" />
+            <e p="Model.cs" t="Include" />
+            <e p="MultiStateCachedResourcePackModel.cs" t="Include" />
+            <e p="ResourcePackModel.cs" t="Include" />
+            <e p="SkyboxModel.cs" t="Include" />
+          </e>
+          <e p="Overlays" t="Include">
+            <e p="Overlay.cs" t="Include" />
+            <e p="WaterOverlay.cs" t="Include" />
+          </e>
+        </e>
+        <e p="KeyBinds.cs" t="Include" />
+        <e p="nuget.config" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp2.0" t="Include">
+              <e p="Alex.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Program.cs" t="Include" />
+        <e p="Properties" t="Include">
+          <e p="launchSettings.json" t="Include" />
+          <e p="PublishProfiles" t="Include">
+            <e p="FolderProfile.pubxml" t="Include" />
+          </e>
+        </e>
+        <e p="rd.xml" t="Include" />
+        <e p="Rendering" t="Include">
+          <e p="Camera" t="Include">
+            <e p="Camera.cs" t="Include" />
+            <e p="FirstPersonCamera.cs" t="Include" />
+          </e>
+          <e p="ChunkManager.cs" t="Include" />
+          <e p="EntityManager.cs" t="Include" />
+          <e p="ResourcePackUiThemeBuilder.cs" t="Include" />
+          <e p="UI" t="Include">
+            <e p="Button.cs" t="Include" />
+            <e p="ChatComponent.cs" t="Include" />
+            <e p="Image.cs" t="Include" />
+            <e p="Info.cs" t="Include" />
+            <e p="InputField.cs" t="Include" />
+            <e p="Label.cs" t="Include" />
+            <e p="Logo.cs" t="Include" />
+            <e p="TrackBar.cs" t="Include" />
+            <e p="UIComponent.cs" t="Include" />
+          </e>
+        </e>
+        <e p="ResourceManager.cs" t="Include" />
+        <e p="Resources" t="Include">
+          <e p="blocks.json" t="Include" />
+          <e p="blockstate-ids.json" t="Include" />
+          <e p="blockstates-without-models-pretty.json" t="Include" />
+          <e p="ButtonState0.png" t="Include" />
+          <e p="ButtonState1.png" t="Include" />
+          <e p="ButtonState2.png" t="Include" />
+          <e p="crosshair.png" t="Include" />
+          <e p="grassie.png" t="Include" />
+          <e p="logo.png" t="Include" />
+          <e p="mcbg.png" t="Include" />
+          <e p="Minecraftia.xnb" t="Include" />
+          <e p="NewBlocks.json" t="Include" />
+          <e p="no.png" t="Include" />
+          <e p="runtimeid_table.json" t="Include" />
+          <e p="woodie.png" t="Include" />
+        </e>
+        <e p="Resources.Designer.cs" t="Include" />
+        <e p="Resources.resx" t="Include" />
+        <e p="Settings.cs" t="Include" />
+        <e p="SplashTexts.cs" t="Include" />
+        <e p="Utils" t="Include">
+          <e p="AtlasGenerator.cs" t="Include" />
+          <e p="Axis.cs" t="Include" />
+          <e p="FastRandom.cs" t="Include" />
+          <e p="FPSCounter.cs" t="Include" />
+          <e p="MapColor.cs" t="Include" />
+          <e p="MathUtils.cs" t="Include" />
+          <e p="MiNETUtils.cs" t="Include" />
+          <e p="PlotCell3F.cs" t="Include" />
+          <e p="RayTracer.cs" t="Include" />
+          <e p="TextureSide.cs" t="Include" />
+          <e p="TextureUtils.cs" t="Include" />
+          <e p="ThreadSafeList.cs" t="Include" />
+          <e p="UVMap.cs" t="Include" />
+        </e>
+        <e p="Worlds" t="Include">
+          <e p="AnvilWorldProvider.cs" t="Include" />
+          <e p="CachedWorld.cs" t="Include" />
+          <e p="ChunkColumn.cs" t="Include" />
+          <e p="Generators" t="Include">
+            <e p="DebugWorldGenerator.cs" t="Include" />
+            <e p="IWorldGenerator.cs" t="Include" />
+            <e p="VoidWorldGenerator.cs" t="Include" />
+            <e p="WorldGenerator.cs" t="Include" />
+          </e>
+          <e p="Lighting" t="Include">
+            <e p="SkylightCalculations.cs" t="Include" />
+          </e>
+          <e p="SPWorldProvider.cs" t="Include" />
+          <e p="World.cs" t="Include" />
+        </e>
+      </e>
+      <e p="Alex.API" t="IncludeRecursive">
+        <e p="Alex.API.csproj" t="IncludeRecursive" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Blocks" t="Include">
+          <e p="Properties" t="Include">
+            <e p="IStateProperty.cs" t="Include" />
+          </e>
+          <e p="State" t="Include">
+            <e p="BlockStatePallete.cs" t="Include" />
+            <e p="IBlockState.cs" t="Include" />
+            <e p="IBlockStatePaletteResizer.cs" t="Include" />
+          </e>
+        </e>
+        <e p="Data" t="Include">
+          <e p="Tags" t="Include" />
+        </e>
+        <e p="Graphics" t="Include">
+          <e p="IRenderable.cs" t="Include" />
+          <e p="IRenderArgs.cs" t="Include" />
+          <e p="Mesh.cs" t="Include" />
+          <e p="VertexPositionNormalTextureColor.cs" t="Include" />
+        </e>
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netstandard2.0" t="Include">
+              <e p="Alex.API.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="World" t="Include">
+          <e p="IBlock.cs" t="Include" />
+          <e p="IBlockStatePallete.cs" t="Include" />
+          <e p="IChunk.cs" t="Include" />
+          <e p="IChunkColumn.cs" t="Include" />
+          <e p="IWorld.cs" t="Include" />
+          <e p="IWorldProvider.cs" t="Include" />
+          <e p="LoadingState.cs" t="Include" />
+          <e p="Storage" t="Include" />
+          <e p="TickManager.cs" t="Include" />
+        </e>
+      </e>
+      <e p="Alex.Data" t="IncludeRecursive">
+        <e p="Alex.Data.csproj" t="IncludeRecursive" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Blocks" t="Include">
+          <e p="Block.cs" t="Include" />
+          <e p="BlockBuilder.csx" t="Include" />
+        </e>
+        <e p="Class1.cs" t="Include" />
+        <e p="Items" t="Include" />
+        <e p="obj" t="ExcludeRecursive" />
+        <e p="Properties" t="Include">
+          <e p="AssemblyInfo.cs" t="Include" />
+          <e p="Resources.Designer.cs" t="Include" />
+          <e p="Resources.resx" t="Include" />
+        </e>
+        <e p="Resources" t="Include">
+          <e p="blocks.json" t="Include" />
+          <e p="blockstate-ids.json" t="Include" />
+          <e p="blockstates-without-models-pretty.json" t="Include" />
+        </e>
+      </e>
+      <e p="Alex.Gui" t="IncludeRecursive">
+        <e p="Alex.Graphics.csproj" t="IncludeRecursive" />
+        <e p="Annotations.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netstandard2.0" t="Include">
+              <e p="Alex.Graphics.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Textures" t="Include">
+          <e p="NinePatchTexture.cs" t="Include" />
+        </e>
+        <e p="UI" t="Include">
+          <e p="Abstractions" t="Include">
+            <e p="IClickable.cs" t="Include" />
+            <e p="IHoverable.cs" t="Include" />
+            <e p="ITextElement.cs" t="Include" />
+          </e>
+          <e p="Common" t="Include">
+            <e p="HorizontalAlignment.cs" t="Include" />
+            <e p="Orientation.cs" t="Include" />
+            <e p="SizeMode.cs" t="Include" />
+            <e p="TextureRepeatMode.cs" t="Include" />
+            <e p="Thickness.cs" t="Include" />
+            <e p="VerticalAlignment.cs" t="Include" />
+          </e>
+          <e p="Controls" t="Include">
+            <e p="Menu" t="Include">
+              <e p="UiMenu.cs" t="Include" />
+              <e p="UiMenuItem.cs" t="Include" />
+            </e>
+            <e p="UiButton.cs" t="Include" />
+            <e p="UiCheckBox.cs" t="Include" />
+            <e p="UiControl.cs" t="Include" />
+            <e p="UiLabel.cs" t="Include" />
+            <e p="UiRadioButton.cs" t="Include" />
+            <e p="UiRadioGroup.cs" t="Include" />
+            <e p="UiSlider.cs" t="Include" />
+            <e p="UiToggleButton.cs" t="Include" />
+          </e>
+          <e p="Input" t="Include">
+            <e p="IInputManager.cs" t="Include" />
+            <e p="Listeners" t="Include">
+              <e p="IMouseListener.cs" t="Include" />
+              <e p="MouseButton.cs" t="Include" />
+              <e p="MouseEventArgs.cs" t="Include" />
+              <e p="MouseListener.cs" t="Include" />
+            </e>
+            <e p="UiInputManager.cs" t="Include" />
+          </e>
+          <e p="Layout" t="Include">
+            <e p="UiElementLayoutParameters.cs" t="Include" />
+            <e p="UiPanel.cs" t="Include" />
+            <e p="UiStackPanel.cs" t="Include" />
+          </e>
+          <e p="Rendering" t="Include">
+            <e p="UiElementRenderArgs.cs" t="Include" />
+            <e p="UiRenderer.cs" t="Include" />
+            <e p="UiScaledResolution.cs" t="Include" />
+          </e>
+          <e p="Themes" t="Include">
+            <e p="UiElementStyle.cs" t="Include" />
+            <e p="UiElementStyleProperty.cs" t="Include" />
+            <e p="UiTheme.cs" t="Include" />
+            <e p="UiThemeStyleSheet.cs" t="Include" />
+          </e>
+          <e p="UiContainer.cs" t="Include" />
+          <e p="UiElement.cs" t="Include" />
+          <e p="UiManager.cs" t="Include" />
+          <e p="UiRoot.cs" t="Include" />
+        </e>
+        <e p="Utils" t="Include">
+          <e p="PointExtensions.cs" t="Include" />
+        </e>
+      </e>
+      <e p="Alex.Networking" t="IncludeRecursive">
+        <e p="Alex.Networking.csproj" t="IncludeRecursive" />
+        <e p="Bedrock" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Java" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netstandard2.0" t="Include">
+              <e p="Alex.Networking.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="Alex.ResourcePackLib" t="IncludeRecursive">
+        <e p="Alex.ResourcePackLib.csproj" t="IncludeRecursive" />
+        <e p="BedrockResourcePack.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Json" t="Include">
+          <e p="Axis.cs" t="Include" />
+          <e p="BlockFace.cs" t="Include" />
+          <e p="BlockStates" t="Include">
+            <e p="BlockState.cs" t="Include" />
+            <e p="BlockStateModel.cs" t="Include" />
+            <e p="BlockStateMultiPart.cs" t="Include" />
+            <e p="BlockStateVariant.cs" t="Include" />
+            <e p="MultiPartRule.cs" t="Include" />
+          </e>
+          <e p="Converters" t="Include">
+            <e p="BlockModelElementFaceUVConverter.cs" t="Include" />
+            <e p="BlockStateMultiPartConverter.cs" t="Include" />
+            <e p="BlockStateVariantConverter.cs" t="Include" />
+            <e p="JVector3Converter.cs" t="Include" />
+            <e p="SingleOrArrayConverter.cs" t="Include" />
+          </e>
+          <e p="MCJsonConvert.cs" t="Include" />
+          <e p="Models" t="Include">
+            <e p="Blocks" t="Include">
+              <e p="BlockModel.cs" t="Include" />
+              <e p="BlockModelElement.cs" t="Include" />
+              <e p="BlockModelElementFace.cs" t="Include" />
+              <e p="BlockModelElementFaceUv.cs" t="Include" />
+              <e p="BlockModelElementRotation.cs" t="Include" />
+            </e>
+            <e p="Entities" t="Include">
+              <e p="EntityModel.cs" t="Include" />
+              <e p="EntityModelBone.cs" t="Include" />
+              <e p="EntityModelCube.cs" t="Include" />
+            </e>
+          </e>
+          <e p="ResourcePackInfo.cs" t="Include" />
+          <e p="Textures" t="Include">
+            <e p="TextureInfoJson.cs" t="Include" />
+          </e>
+        </e>
+        <e p="MCResourcePack.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netstandard2.0" t="Include">
+              <e p="Alex.ResourcePackLib.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="Alex.sln" t="IncludeFlat" />
+      <e p="nuget.config" t="Include" />
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Solution Items" t="Include" />
+    </e>
+  </component>
+</project>

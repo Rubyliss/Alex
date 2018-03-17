@@ -1,17 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using Alex.Engine.Graphics.Sprites;
+using Alex.Engine.Vertices;
+using Alex.Graphics;
+using SharpDX.Direct3D11;
+using Veldrid;
+using Veldrid.OpenGLBinding;
+using Veldrid.Utilities;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex
 {
 	public static class Extensions
 	{
-		private static Texture2D WhiteTexture { get; set; }
+		private static Texture WhiteTexture { get; set; }
 
 		static Extensions()
 		{
@@ -20,8 +28,10 @@ namespace Alex
 
 	    public static void Init(GraphicsDevice gd)
 	    {
-            WhiteTexture = new Texture2D(gd, 1, 1);
-            WhiteTexture.SetData(new Color[] { Color.White });
+		   WhiteTexture = gd.ResourceFactory.CreateTexture(new TextureDescription(1, 1, 1, 0, 1, PixelFormat.B8_G8_R8_A8_UNorm,
+			    TextureUsage.RenderTarget, TextureType.Texture2D));
+            //WhiteTexture = new Texture2D(gd, 1, 1);
+            //WhiteTexture.SetData(new Color[] { Color.White });
         }
 
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int N)
@@ -29,7 +39,7 @@ namespace Alex
             return source.Skip(Math.Max(0, source.Count() - N));
         }
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+     /*   [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int MapVirtualKey(int uCode, int uMapType);
 
         public static bool RepresentsPrintableChar(this Keys key)
@@ -46,7 +56,7 @@ namespace Alex
         {
             return (key >= Keys.D0 && key <= Keys.D9) || (key >= Keys.NumPad0 && key <= Keys.NumPad9);
         }
-
+		*/
         [DllImport("user32.dll")]
         static extern short VkKeyScan(char c);
 
@@ -78,50 +88,16 @@ namespace Alex
             return (char)r;
         }
 
-        /// <summary>
-        /// Draw a line between the two supplied points.
-        /// </summary>
-        /// <param name="start">Starting point.</param>
-        /// <param name="end">End point.</param>
-        /// <param name="color">The draw color.</param>
-        public static void DrawLine(this SpriteBatch sb, Vector2 start, Vector2 end, Color color)
-		{
-			float length = (end - start).Length();
-			float rotation = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
-			sb.Draw(WhiteTexture, start, null, color, rotation, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
-		}
-
-		/// <summary>
-		/// Draw a rectangle.
-		/// </summary>
-		/// <param name="rectangle">The rectangle to draw.</param>
-		/// <param name="color">The draw color.</param>
-		public static void DrawRectangle(this SpriteBatch sb, Rectangle rectangle, Color color)
-		{
-			sb.Draw(WhiteTexture, new Rectangle(rectangle.Left, rectangle.Top, rectangle.Width, 1), color);
-			sb.Draw(WhiteTexture, new Rectangle(rectangle.Left, rectangle.Bottom, rectangle.Width, 1), color);
-			sb.Draw(WhiteTexture, new Rectangle(rectangle.Left, rectangle.Top, 1, rectangle.Height), color);
-			sb.Draw(WhiteTexture, new Rectangle(rectangle.Right, rectangle.Top, 1, rectangle.Height + 1), color);
-		}
-
-		/// <summary>
-		/// Fill a rectangle.
-		/// </summary>
-		/// <param name="rectangle">The rectangle to fill.</param>
-		/// <param name="color">The fill color.</param>
-		public static void FillRectangle(this SpriteBatch sb, Rectangle rectangle, Color color)
-		{
-			sb.Draw(WhiteTexture, rectangle, color);
-		}
+      
 
 		public static void RenderBoundingBox(
 			this SpriteBatch sb,
 			BoundingBox box,
-			Matrix view,
-			Matrix projection,
+			Matrix4x4 view,
+			Matrix4x4 projection,
 			Color color)
 		{
-			if (effect == null)
+		/*	if (effect == null)
 			{
 				effect = new BasicEffect(sb.GraphicsDevice)
 				{
@@ -152,12 +128,12 @@ namespace Alex
 					indices,
 					0,
 					indices.Length / 2);
-			}
+			}*/
 		}
 
 		#region Fields
 
-		private static readonly VertexPositionColor[] verts = new VertexPositionColor[8];
+	//	private static readonly VertexPositionColor[] verts = new VertexPositionColor[8];
 
 		private static readonly short[] indices =
 		{
@@ -175,7 +151,7 @@ namespace Alex
 			7, 4
 		};
 
-		private static BasicEffect effect;
+	//	private static BasicEffect effect;
 		private static VertexDeclaration vertDecl;
 
 		#endregion
@@ -240,6 +216,8 @@ namespace Alex
 				data[i] = value;
 			}
 		}
+
+		//public static Vector3 Apply()
 
 		public static Guid GuidFromBits(long least, long most)
 		{

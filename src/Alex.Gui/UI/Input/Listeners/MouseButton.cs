@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Alex.Graphics.UI.Input.Listeners
+namespace Alex.Engine.UI.Input.Listeners
 {
     [Flags]
     public enum MouseButton

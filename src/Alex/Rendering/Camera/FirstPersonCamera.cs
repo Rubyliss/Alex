@@ -1,4 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿
+
+using System.Numerics;
+using Alex.Utils;
 
 namespace Alex.Rendering.Camera
 {
@@ -21,8 +24,8 @@ namespace Alex.Rendering.Camera
 
             FarDistance = renderDistance * 16 * 16;
 
-            ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.ToRadians(70),
+            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
+                MathUtils.ToRadians(70),
                 1.333333F,
                 NearDistance,
                 FarDistance);
@@ -30,8 +33,8 @@ namespace Alex.Rendering.Camera
 
         public void UpdateAspectRatio(float aspectRatio)
         {
-            ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.ToRadians(70),
+            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
+	            MathUtils.ToRadians(70),
                 aspectRatio,
                 NearDistance,
                 FarDistance);
@@ -45,7 +48,7 @@ namespace Alex.Rendering.Camera
 
         public Vector3 PreviewMove(Vector3 amount)
         {
-			Matrix rotate = Matrix.CreateRotationY(Rotation.Y);
+			Matrix4x4 rotate = Matrix4x4.CreateRotationY(Rotation.Y);
             Vector3 movement = new Vector3(amount.X, amount.Y, amount.Z);
             movement = Vector3.Transform(movement, rotate);
             return Position + movement;

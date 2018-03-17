@@ -1,4 +1,4 @@
-﻿namespace Alex.Graphics.UI.Themes
+﻿namespace Alex.Engine.UI.Themes
 {
     public class UiThemeStyleSheet
     {

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Alex.Graphics.UI.Input.Listeners;
+﻿using Alex.Engine.UI.Input.Listeners;
 
-namespace Alex.Graphics.UI.Controls
+namespace Alex.Engine.UI.Controls
 {
     public class UiToggleButton : UiControl
     {

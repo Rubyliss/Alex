@@ -14,7 +14,7 @@ using Alex.Graphics.Models;
 using Alex.ResourcePackLib;
 using Alex.ResourcePackLib.Json;
 using Alex.ResourcePackLib.Json.BlockStates;
-using log4net;
+
 using MiNET.Worlds;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -26,15 +26,16 @@ namespace Alex
 {
     public static class BlockFactory
     {
-	    private static readonly ILog Log = LogManager.GetLogger(typeof(BlockFactory));
+	    private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(BlockFactory));
 
 	    public static IReadOnlyDictionary<uint, IBlockState> AllBlockstates => new ReadOnlyDictionary<uint, IBlockState>(RegisteredBlockStates);
 	    private static readonly Dictionary<uint, IBlockState> RegisteredBlockStates = new Dictionary<uint, IBlockState>();
-
+		private static readonly Dictionary<string, IBlockState> BlockStateByName = new Dictionary<string, IBlockState>();
+			 
 		private static readonly Dictionary<uint, Block> RegisteredBlocks = new Dictionary<uint, Block>();
 	    private static readonly Dictionary<uint, BlockModel> ModelCache = new Dictionary<uint, BlockModel>();
 
-		private static readonly Dictionary<int, BlockMeta> CachedBlockMeta = new Dictionary<int, BlockMeta>();
+		private static readonly Dictionary<string, BlockMeta> CachedBlockMeta = new Dictionary<string, BlockMeta>();
 
 	    private static ResourcePackLib.Json.Models.Blocks.BlockModel CubeModel { get; set; }
 	    private static readonly LiquidBlockModel StationairyWaterModel = new LiquidBlockModel()
@@ -66,7 +67,8 @@ namespace Alex
 	    };
 
 		internal static void Init()
-	    {
+		{
+			return;
 		    JArray blockArray = JArray.Parse(Encoding.UTF8.GetString(Resources.blocks));
 		    Dictionary<string, JObject> blockMetaDictionary =
 			    JsonConvert.DeserializeObject<Dictionary<string, JObject>>(
@@ -121,14 +123,14 @@ namespace Alex
 				    meta.IsFullCube = found["isFullCube"].Value<bool>();
 			    }
 
-			    MiNET.Blocks.Block minetBlock = MiNET.Blocks.BlockFactory.GetBlockByName(name);
+			   // MiNET.Blocks.Block minetBlock = MiNET.Blocks.BlockFactory.GetBlockByName(name);
 
-			    if (minetBlock == null)
-			    {
-				    minetBlock = MiNET.Blocks.BlockFactory.GetBlockById(id); 
-			    }
+			  //  if (minetBlock == null)
+			   // {
+				 //   minetBlock = MiNET.Blocks.BlockFactory.GetBlockById(id); 
+			  //  }
 
-			    if (minetBlock != null)
+			   /* if (minetBlock != null)
 			    {
 				    meta.Solid = minetBlock.IsSolid;
 				    meta.FrictionFactor = minetBlock.FrictionFactor;
@@ -138,9 +140,9 @@ namespace Alex
 				    {
 					    meta.Transparent = true;
 				    }
-				}
+				}*/
 
-			    CachedBlockMeta.TryAdd(id, meta);
+			    CachedBlockMeta.TryAdd($"{name}", meta);
 		    }
 		}
 
@@ -211,7 +213,7 @@ namespace Alex
 	    private static int LoadModels(ResourceManager resources, McResourcePack resourcePack, bool replace,
 		    bool reportMissing)
 	    {
-			TableEntry[] tablesEntries = TableEntry.FromJson(Resources.runtimeid_table);
+			TableEntry[] tablesEntries = TableEntry.FromJson(Resources.runtimeid_table); 
 		    var data = BlockData.FromJson(Resources.NewBlocks);
 			int importCounter = 0;
 
@@ -262,7 +264,7 @@ namespace Alex
 					{
 						var block = new Block(id);
 						BlockMeta knownMeta = null;
-						//if (!CachedBlockMeta.TryGetValue(blockId, out knownMeta))
+						//if (!CachedBlockMeta.TryGetValue(entry.Key, out knownMeta))
 						{
 							if (knownMeta == null)
 							{
@@ -293,12 +295,17 @@ namespace Alex
 						block.Drag = knownMeta.FrictionFactor;
 						block.IsReplacible = knownMeta.Replacible;
 
-						if (s.Default)
+						blockStateData.Block = block;
+						blockStateData.Default = state;
+
+						if (s.Default) //This is the default variant.
 						{
 							state.Block = block;
+							state.Default = blockStateData;
 						}
 
-						blockStateData.Block = block;
+						state.Variants.Add(blockStateData);
+
 						RegisteredBlockStates.TryAdd(id, blockStateData);
 
 						return block;
@@ -306,10 +313,13 @@ namespace Alex
 					{
 						importCounter++;
 					}
+					// Blocks.State.BlockState value = (Blocks.State.BlockState) state.Clone();
 
-					
-				   // Blocks.State.BlockState value = (Blocks.State.BlockState) state.Clone();
-					
+				}
+
+			    if (!BlockStateByName.TryAdd(state.Name, state))
+			    {
+					Log.Warn($"Failed to add blockstate, key already exists! ({state.Name})");
 			    }
 		    }
 
@@ -550,15 +560,15 @@ namespace Alex
 
 	    public static IBlockState GetBlockState(string palleteId)
 	    {
-		   // if (RegisteredBlockStates.TryGetValue(palleteId, out var result))
-		   // {
-			//    return result;
-		  //  }
+		    if (BlockStateByName.TryGetValue(palleteId, out var result))
+		    {
+			    return result;
+		    }
 
 		    return AirState;
 	    }
 
-		public static IBlockState GetBlockState(uint palleteId)
+	    public static IBlockState GetBlockState(uint palleteId)
 	    {
 		    if (RegisteredBlockStates.TryGetValue(palleteId, out var result))
 		    {
@@ -597,7 +607,7 @@ namespace Alex
 
 		    return new Block(palleteId)
 		    {
-			    BlockModel = new ResourcePackModel(null, new[] { new BlockStateModel
+			    BlockModel = new CachedResourcePackModel(null, new[] { new BlockStateModel
 			    {
 					Model = CubeModel,
 					ModelName = CubeModel.Name,

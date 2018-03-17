@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
-using log4net;
-using Microsoft.Xna.Framework.Graphics;
+using Veldrid;
 
-namespace Alex.Graphics.UI.Themes
+namespace Alex.Engine.UI.Themes
 {
     public delegate bool UiElementPredicate<TUiElement>(TUiElement element) where TUiElement : UiElement;
 
@@ -13,9 +12,9 @@ namespace Alex.Graphics.UI.Themes
 
     public class UiTheme
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(UiTheme));
+        private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(UiTheme));
         
-        private List<Texture2D> _textures = new List<Texture2D>();
+        private List<Texture> _textures = new List<Texture>();
         private List<UiThemeStyleSheet> _styleSheets = new List<UiThemeStyleSheet>();
         
         public void AddClass<TUiElement>(UiElementStyle style) where TUiElement : UiElement

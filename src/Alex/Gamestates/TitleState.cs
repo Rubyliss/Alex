@@ -4,17 +4,15 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using Alex.API.World;
+using Alex.Engine.UI;
+using Alex.Engine.UI.Controls.Menu;
+using Alex.Engine.UI.Layout;
 using Alex.Gamestates.Playing;
 using Alex.Graphics;
-using Alex.Graphics.UI;
-using Alex.Graphics.UI.Common;
-using Alex.Graphics.UI.Controls.Menu;
-using Alex.Graphics.UI.Layout;
 using Alex.Utils;
 using Alex.Worlds;
 using Alex.Worlds.Generators;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+
 
 namespace Alex.Gamestates
 {
@@ -53,18 +51,19 @@ namespace Alex.Gamestates
 			};
 			Gui.AddChild(logo);
 
-			Alex.IsMouseVisible = true;
+			Alex.Window.CursorVisible = true;
 		}
 
 		private void DebugWorldButtonActivated()
 		{
-			Alex.IsMouseVisible = false;
+			Alex.Window.CursorVisible = false;
 
 			IWorldGenerator generator;
+			
 			if (Alex.GameSettings.UseBuiltinGenerator || (string.IsNullOrWhiteSpace(Alex.GameSettings.Anvil) ||
 			                                              !File.Exists(Path.Combine(Alex.GameSettings.Anvil, "level.dat"))))
 			{
-				generator = new DebugWorldGenerator();
+				generator = new OverworldGenerator();
 			}
 			else
 			{

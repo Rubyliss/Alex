@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text.RegularExpressions;
 using Alex.API.World;
 using Alex.Blocks;
@@ -12,8 +13,6 @@ using Alex.Blocks.Storage;
 using Alex.Worlds.Generators;
 using fNbt;
 using fNbt.Tags;
-using log4net;
-using Microsoft.Xna.Framework;
 using MiNET.BlockEntities;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -22,7 +21,7 @@ namespace Alex.Worlds
 {
 	public class AnvilWorldProvider : IWorldGenerator
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(AnvilWorldProvider));
+		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(AnvilWorldProvider));
 
 		public static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 

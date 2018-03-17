@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Numerics;
 using Alex.Worlds;
-using Microsoft.Xna.Framework;
+using MiNET.Utils;
 
 namespace Alex.Utils
 {

@@ -1,30 +1,30 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using Veldrid;
 
 namespace Alex
 {
     public static class KeyBinds
     {
-        public static Keys Forward = Keys.W;
-        public static Keys Backward = Keys.S;
-        public static Keys Left = Keys.A;
-        public static Keys Right = Keys.D;
-        public static Keys Up = Keys.Space;
-        public static Keys Down = Keys.LeftShift;
+        public static Key Forward = Key.W;
+        public static Key Backward = Key.S;
+        public static Key Left = Key.A;
+        public static Key Right = Key.D;
+        public static Key Up = Key.Space;
+        public static Key Down = Key.ShiftLeft;
 
-	    public static Keys IncreaseSpeed = Keys.OemPlus;
-	    public static Keys DecreaseSpeed = Keys.OemMinus;
-	    public static Keys ResetSpeed = Keys.OemPeriod;
+	    public static Key IncreaseSpeed = Key.KeypadPlus;
+	    public static Key DecreaseSpeed = Key.KeypadMinus;
+	    public static Key ResetSpeed = Key.KeypadPeriod;
 
-		public static Keys Fog = Keys.F;
+		public static Key Fog = Key.F;
 
-	    public static Keys Menu = Keys.Escape;
-	    public static Keys DebugInfo = Keys.F3;
+	    public static Key Menu = Key.Escape;
+	    public static Key DebugInfo = Key.F3;
 
-        public static Keys Chat = Keys.T;
+        public static Key Chat = Key.T;
 
-        public static Keys ToggleFreeCam = Keys.F8;
-        public static Keys ReBuildChunks = Keys.F9;
+        public static Key ToggleFreeCam = Key.F8;
+        public static Key ReBuildChunks = Key.F9;
 
-	    public static Keys ToggleWireframe = Keys.F10;
+	    public static Key ToggleWireframe = Key.F10;
 	}
 }

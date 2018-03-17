@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Alex.API.Graphics;
 using Alex.API.World;
 using Alex.Blocks;
 using Alex.Utils;
-using Microsoft.Xna.Framework;
 using Alex.ResourcePackLib.Json;
 
 namespace Alex.Graphics.Models
@@ -40,7 +40,7 @@ namespace Alex.Graphics.Models
 				b2 = 9;
 			}
 
-			var bc = world.GetBlock(position + Vector3.Up).BlockId;//.GetType();
+			var bc = world.GetBlock(position + Vector3.UnitY).BlockId;//.GetType();
 			if (bc == b1 || bc == b2)
 			{
 				tl = 8;
@@ -84,22 +84,22 @@ namespace Alex.Graphics.Models
 				switch (f)
 				{
 					case BlockFace.Up:
-						d = Vector3.Up;
+						d = Vector3.UnitY;
 						break;
 					case BlockFace.Down:
-						d = Vector3.Down;
+						d = -Vector3.UnitY;
 						break;
 					case BlockFace.North:
-						d = Vector3.Backward;
+						d = -Vector3.UnitZ;
 						break;
 					case BlockFace.South:
-						d = Vector3.Forward;
+						d = Vector3.UnitZ;
 						break;
 					case BlockFace.West:
-						d = Vector3.Left;
+						d = -Vector3.UnitX;
 						break;
 					case BlockFace.East:
-						d = Vector3.Right;
+						d = Vector3.UnitX;
 						break;
 				}
 

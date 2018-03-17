@@ -3,23 +3,29 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Alex.API.Graphics;
 using Alex.API.World;
+using Alex.Engine.Graphics;
 using Alex.Entities;
 using Alex.Gamestates;
+using Alex.Graphics;
 using Alex.Graphics.Models;
 using Alex.ResourcePackLib.Json.Models;
 using Alex.Utils;
 using Alex.Worlds;
 using Alex.Worlds.Lighting;
-using log4net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MiNET.Utils;
-using Color = Microsoft.Xna.Framework.Color;
+using SharpDX.Direct3D11;
+using Veldrid;
+using Veldrid.OpenGLBinding;
+using Veldrid.Utilities;
+using BoundingBox = Veldrid.Utilities.BoundingBox;
+using ContainmentType = Veldrid.Utilities.ContainmentType;
 
 //using OpenTK.Graphics;
 
@@ -27,7 +33,7 @@ namespace Alex.Rendering
 {
     public class ChunkManager : IDisposable
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(ChunkManager));
+        private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(ChunkManager));
         
         private GraphicsDevice Graphics { get; }
         private Camera.Camera Camera { get; }
@@ -38,7 +44,7 @@ namespace Alex.Rendering
 	    public int ChunkUpdates => _chunkUpdates;
 	    public int ChunkCount => Chunks.Count;
 
-	    private AlphaTestEffect Effect { get; }
+	    private Shader Effect { get; }
 
 	    public int Vertices { get; private set; }
 	    public int RenderedChunks { get; private set; } = 0;
@@ -55,7 +61,7 @@ namespace Alex.Rendering
 			SkylightCalculator = new SkylightCalculations(world);
 
 			var distance = (float)Math.Pow(alex.GameSettings.RenderDistance, 2);
-			Effect = new AlphaTestEffect(Graphics)
+		/*	Effect = new AlphaTestEffect(Graphics)
             {
                 Texture = alex.Resources.Atlas.GetAtlas(),
                 VertexColorEnabled = true,
@@ -65,7 +71,7 @@ namespace Alex.Rendering
 
 			Effect.FogEnd = distance;
 			Effect.FogStart = distance - (distance * 0.55f);
-			Effect.FogEnabled = true;
+			Effect.FogEnabled = true;*/
 
             Updater = new Thread(ChunkUpdateThread)
             {IsBackground = true};
@@ -223,7 +229,7 @@ namespace Alex.Rendering
 		    VertexBuffer buffer = new VertexBuffer(Graphics,
 			    VertexPositionNormalTextureColor.VertexDeclaration,
 			    vertices.Length,
-			    BufferUsage.WriteOnly);
+			    BufferUsage.VertexBuffer);
 
 		    if (vertices.Length > 0)
 		    {
@@ -239,8 +245,8 @@ namespace Alex.Rendering
 
 		    Stopwatch sw = Stopwatch.StartNew();
 
-		    Effect.View = Camera.ViewMatrix;
-		    Effect.Projection = Camera.ProjectionMatrix;
+		   // Effect.View = Camera.ViewMatrix;
+		  //  Effect.Projection = Camera.ProjectionMatrix;
 
 		    var r = _renderedChunks.ToArray();
 		    var chunks = new KeyValuePair<ChunkCoordinates, IChunkColumn>[r.Length];
@@ -307,7 +313,7 @@ namespace Alex.Rendering
 		    }
 
 		    //Render Solid
-		    device.DepthStencilState = DepthStencilState.Default;
+		    /*device.DepthStencilState = DepthStencilState.Default;
 		    device.BlendState = BlendState.AlphaBlend;
 
 		    foreach (var b in opaqueBuffers)
@@ -354,7 +360,7 @@ namespace Alex.Rendering
 			    device.DrawPrimitives(PrimitiveType.TriangleList, 0, b.VertexCount / 3);
 
 			    tempVertices += b.VertexCount;
-		    }
+		    }*/
 
 		    Vertices = tempVertices;
 		    RenderedChunks = tempChunks;
@@ -374,9 +380,9 @@ namespace Alex.Rendering
 		    var renderedChunks = Chunks.ToArray().Where(x =>
 		    {
 			    var chunkPos = new Vector3(x.Key.X * ChunkColumn.ChunkWidth, 0, x.Key.Z * ChunkColumn.ChunkDepth);
-			    return Camera.BoundingFrustum.Intersects(new Microsoft.Xna.Framework.BoundingBox(chunkPos,
+			    return Camera.BoundingFrustum.Contains(new BoundingBox(chunkPos,
 				    chunkPos + new Vector3(ChunkColumn.ChunkWidth, 16 * ((x.Value.GetHeighest() >> 4) + 1),
-					    ChunkColumn.ChunkDepth)));
+					    ChunkColumn.ChunkDepth))) == ContainmentType.Intersects;
 		    }).Select(x => x.Key).ToArray();
 
 			foreach (var c in renderedChunks)
@@ -398,7 +404,7 @@ namespace Alex.Rendering
             Chunks.AddOrUpdate(position, chunk, (vector3, chunk1) =>
             {
 	            chunk1.Dispose();
-				Log.WarnFormat("Replaced chunk at {0}", position);
+				Log.Warn($"Replaced chunk at {position}");
                 return chunk;
             });
 

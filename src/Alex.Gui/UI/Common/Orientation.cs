@@ -1,4 +1,4 @@
-﻿namespace Alex.Graphics.UI.Common
+﻿namespace Alex.Engine.UI.Common
 {
 	public enum Orientation
 	{

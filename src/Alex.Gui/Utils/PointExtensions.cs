@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Xna.Framework;
+using Veldrid;
 
-namespace Alex.Graphics.Utils
+namespace Alex.Engine.Utils
 {
     public static class PointExtensions
     {

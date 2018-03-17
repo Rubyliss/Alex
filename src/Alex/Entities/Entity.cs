@@ -1,6 +1,6 @@
 ﻿using System;
 using Alex.Graphics.Models;
-using Microsoft.Xna.Framework;
+
 using MiNET.Net;
 using MiNET.Worlds;
 

@@ -1,13 +1,14 @@
-﻿using Alex.API.World;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using System.Drawing;
+using Alex.API.World;
+using Veldrid;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex.Gamestates
 {
     public class LoadingWorldState : GameState
     {
-		private Texture2D Background { get; }
-	    public LoadingWorldState(Alex alex, Texture2D background) : base(alex)
+		private Texture Background { get; }
+	    public LoadingWorldState(Alex alex, Texture background) : base(alex)
 	    {
 		    Background = background;
 	    }
@@ -36,14 +37,14 @@ namespace Alex.Gamestates
 
 	    protected override void OnDraw2D(RenderArgs args)
 	    {
-			args.SpriteBatch.Begin();
-
-		    //Start draw background
-		    var retval = new Rectangle(
-			    args.SpriteBatch.GraphicsDevice.Viewport.X,
-			    args.SpriteBatch.GraphicsDevice.Viewport.Y,
-			    args.SpriteBatch.GraphicsDevice.Viewport.Width,
-			    args.SpriteBatch.GraphicsDevice.Viewport.Height);
+			args.SpriteBatch.Begin(args.Commands);
+		   var bounds = Alex.Window.Bounds;
+			//Start draw background
+			var retval = new Rectangle(
+			   bounds.X,
+			  bounds.Y,
+			  bounds.Width,
+			  bounds.Height);
 		    args.SpriteBatch.Draw(Background, retval, Color.White);
 		    //End draw backgroun
 

@@ -1,8 +1,12 @@
-﻿using Alex.Gamestates;
+﻿using System.Drawing;
+using System.Numerics;
+using Alex.Engine;
+using Alex.Gamestates;
+using Alex.Graphics;
 using Alex.Utils;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using Veldrid;
+using Veldrid.Sdl2;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex.Rendering.UI
 {
@@ -10,8 +14,8 @@ namespace Alex.Rendering.UI
     {
         private Rectangle ButtonRectangle { get; set; }
         private Rectangle TrackerRectangle { get; set; }
-	    private Texture2D ButtonTexture { get; set; } = null;
-	    private Texture2D TrackerTexture { get; set; } = null;
+	    private Texture ButtonTexture { get; set; } = null;
+	    private Texture TrackerTexture { get; set; } = null;
 
         public string Text { get; set; }
         private bool Focus { get; set; }
@@ -58,7 +62,7 @@ namespace Alex.Rendering.UI
                 measureString = Alex.Font.MeasureString(s);
             }
 
-            args.SpriteBatch.Begin();
+            args.SpriteBatch.Begin(args.Commands);
 
             args.SpriteBatch.Draw(ButtonTexture, ButtonRectangle, Color.Cornsilk);
             args.SpriteBatch.DrawString(Alex.Font, s,
@@ -71,7 +75,7 @@ namespace Alex.Rendering.UI
 
         public override void Update(GameTime time)
         {
-            var ms = Mouse.GetState();
+            /*var ms = Mouse.GetState();
             var mouseRec = new Rectangle(ms.X, ms.Y, 1, 1);
 
             if (ms.LeftButton == ButtonState.Pressed)
@@ -85,7 +89,7 @@ namespace Alex.Rendering.UI
 
                     Value = (int) a;
                 }
-            }
+            }*/
         }
     }
 }

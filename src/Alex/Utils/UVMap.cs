@@ -1,5 +1,6 @@
-﻿using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework;
+﻿using System.Drawing;
+using System.Numerics;
+using System.Runtime.InteropServices;
 using Alex.ResourcePackLib.Json;
 
 namespace Alex.Utils
@@ -44,8 +45,7 @@ namespace Alex.Utils
 
     internal class UvMapHelp
     {
-        public static readonly Color LightColor =
-          new Color(245, 245, 225);
+	    public static readonly Color LightColor = Color.FromArgb(245, 245, 225);
 
         /// <summary>
         /// The default lighting information for rendering a block;
@@ -112,8 +112,9 @@ namespace Alex.Utils
 			    }
 		    }
 
-		    var light = LightColor.ToVector3() * CubeBrightness[lighting];
-			return new Color(brightness * (color.ToVector3() * light));
-		}
+		    var light = new Vector3(LightColor.R, LightColor.G, LightColor.B) * CubeBrightness[lighting];
+		    var c = brightness * new Vector3(color.R, color.G, color.B) * light;
+		    return Color.FromArgb((int) c.X, (int) c.Y, (int) c.Z);
+	    }
     }
 }

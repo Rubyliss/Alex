@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
+using Alex.Engine;
 using Alex.Gamestates;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using Alex.Graphics;
+using Veldrid;
+using Rectangle = Veldrid.Rectangle;
 
 namespace Alex.Rendering.UI
 {
@@ -20,7 +24,7 @@ namespace Alex.Rendering.UI
 
 		public override void Render(RenderArgs args)
 		{
-			args.SpriteBatch.Begin();
+		/*	args.SpriteBatch.Begin();
 			try
 			{
 				if (RenderChatInput)
@@ -75,13 +79,13 @@ namespace Alex.Rendering.UI
 			finally
 			{
 				args.SpriteBatch.End();
-			}
+			}*/
 		}
 
-		private KeyboardState _prevKeyboardState;
+		private InputSnapshot _prevKeyboardState;
 		public override void Update(GameTime time)
 		{
-			KeyboardState currentKeyboardState = Keyboard.GetState();
+			InputSnapshot currentKeyboardState = Alex.Instance.Window.PumpEvents();
 			if (currentKeyboardState != _prevKeyboardState)
 			{
 				if (RenderChatInput) //Handle Input
@@ -91,7 +95,7 @@ namespace Alex.Rendering.UI
 				//		BackSpace();
 				//	}
 
-					if (currentKeyboardState.IsKeyDown(Keys.Enter))
+					if (currentKeyboardState.IsKeyDown(Key.Enter))
 					{
 						SubmitMessage();
 					}
@@ -121,23 +125,23 @@ namespace Alex.Rendering.UI
 
 		}
 
-		private void OnCharacterInput(object sender, TextInputEventArgs c)
+		private void OnCharacterInput(object sender, KeyEvent c)
 		{
 			if (RenderChatInput)
 			{
-				if (c.Key == Keys.Back)
+				if (c.Key == Key.Back)
 				{
 					BackSpace();
 					return;
 				}
 
-				if (c.Key == Keys.Enter)
+				if (c.Key == Key.Enter)
 				{
 					SubmitMessage();
 					return;
 				}
 
-				_input.Append(c.Character);
+				_input.Append(c.Key);
 			}
 		}
 
