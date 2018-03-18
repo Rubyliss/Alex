@@ -19,7 +19,7 @@ namespace Alex.Rendering.UI
 
         public override void Render(RenderArgs args)
         {
-            args.SpriteBatch.Begin(args.Commands, SpriteSortMode.Deferred);
+            args.SpriteBatch.Begin(ref args.Commands, SpriteSortMode.Deferred);
 
             args.SpriteBatch.Draw(Texture, Location, Color.White);
 

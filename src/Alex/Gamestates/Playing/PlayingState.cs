@@ -211,7 +211,7 @@ namespace Alex.Gamestates.Playing
 		{
 			try
 			{
-				args.SpriteBatch.Begin(args.Commands);
+				args.SpriteBatch.Begin(ref args.Commands);
 
 
 				if (_renderWaterOverlay)

@@ -116,7 +116,7 @@ namespace Alex.Engine.Graphics.Effects
 		private readonly Dictionary<string, EffectParameter> _parameters;
 
 		private EffectPipelineStateHandle _pipelineStateHandle;
-		public Pipeline _pipelineState;
+		public Pipeline PipelineState;
 
 		private EffectDirtyFlags _dirtyFlags;
 
@@ -518,7 +518,7 @@ namespace Alex.Engine.Graphics.Effects
 		{
 			if (_dirtyFlags.HasFlag(EffectDirtyFlags.PipelineState))
 			{
-				commandEncoder.SetPipeline(_pipelineState);
+				commandEncoder.SetPipeline(PipelineState);
 
 				_dirtyFlags &= ~EffectDirtyFlags.PipelineState;
 			}
@@ -540,7 +540,7 @@ namespace Alex.Engine.Graphics.Effects
 			}
 
 			_pipelineStateHandle = pipelineStateHandle;
-			_pipelineState = GetPipelineState(pipelineStateHandle);
+			PipelineState = GetPipelineState(pipelineStateHandle);
 
 			if (!_dirtyFlags.HasFlag(EffectDirtyFlags.PipelineState))
 			{

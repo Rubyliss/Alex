@@ -67,7 +67,7 @@ namespace Alex.Rendering.UI
 		        GrassTexture = TextureUtils.ImageToTexture2D(args.GraphicsDevice, Resources.grass);
 			}
 
-            args.SpriteBatch.Begin(args.Commands);
+            args.SpriteBatch.Begin(ref args.Commands);
             Vector2 centerScreen = CenterScreen(args.GraphicsDevice);
 
 	        int totalX = 0;

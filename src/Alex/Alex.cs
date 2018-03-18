@@ -162,16 +162,18 @@ namespace Alex
 
 			_commandList.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
 
-			_spriteBatch.Begin(_commandList);
-			GameStateManager.Draw(gameTime, _commandList);
+			_spriteBatch.Begin(ref _commandList);
 
-			base.Draw(gameTime);
-			UiManager.Draw(gameTime, _commandList);
+			//GameStateManager.Draw(gameTime, _commandList);
 
-			_spriteBatch.FillRectangle(new Rectangle(50, 50, 50, 50), Color.Tomato);
+			//UiManager.Draw(gameTime, _commandList);
+
+			_spriteBatch.FillRectangle(new Rectangle(50, 50, Window.Width, Window.Height), Color.Tomato);
+
 			_spriteBatch.End();
 
 			_commandList.End();
+
 			GraphicsDevice.SubmitCommands(_commandList);
 		
 			GraphicsDevice.WaitForIdle();

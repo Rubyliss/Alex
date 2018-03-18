@@ -102,7 +102,7 @@ namespace Alex.Gamestates
 		private string ErrorText = string.Empty;
 		protected override void OnDraw2D(RenderArgs args)
 		{
-			args.SpriteBatch.Begin(args.Commands);
+			args.SpriteBatch.Begin(ref args.Commands);
 
 			var bounds = Alex.Window.Bounds;
 			//Start draw background

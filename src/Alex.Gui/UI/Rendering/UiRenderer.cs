@@ -74,7 +74,7 @@ namespace Alex.Engine.UI.Rendering
 
 		public void BeginDraw(CommandList commandList)
 		{
-			SpriteBatch.Begin(commandList /*SpriteSortMode.Deferred, BlendStateDescription.SingleAlphaBlend, null, DepthStencilStateDescription.Disabled, RasterizerStateDescription.CullNone, null, ScaleMatrix*/);
+			SpriteBatch.Begin(ref commandList /*SpriteSortMode.Deferred, BlendStateDescription.SingleAlphaBlend, null, DepthStencilStateDescription.Disabled, RasterizerStateDescription.CullNone, null, ScaleMatrix*/);
 		}
 
 		public void EndDraw()

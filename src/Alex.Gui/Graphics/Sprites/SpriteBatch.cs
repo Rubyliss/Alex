@@ -7,6 +7,7 @@ using Alex.Engine.Content;
 using Alex.Engine.Graphics.Effects;
 using Alex.Engine.Utils;
 using Alex.Engine.Vertices;
+using NLog;
 using Veldrid;
 using Rectangle = System.Drawing.Rectangle;
 
@@ -17,6 +18,8 @@ namespace Alex.Engine.Graphics.Sprites
 	/// </summary>
 	public class SpriteBatch : DisposableBase
 	{
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger(typeof(SpriteBatch));
+
 		private GraphicsDevice GraphicsDevice;
 		private readonly SpriteMaterial _material;
 		private readonly ConstantBuffer<SpriteMaterial.MaterialConstantsVS> _materialConstantsVSBuffer;
@@ -73,10 +76,16 @@ namespace Alex.Engine.Graphics.Sprites
 		private CommandList _commandList;
 
 		private int CallingThread = -1;
-		public void Begin(CommandList commandList, SpriteSortMode sortMode = SpriteSortMode.Deferred)
+		public void Begin(ref CommandList commandList, SpriteSortMode sortMode = SpriteSortMode.Deferred)
 		{
-			if (CallingThread > 0) return;
+			if (CallingThread > 0 && _begun)
+			{
+				Log.Warn($"Begin has been called while not ended!");	
+				return;
+			}
+
 			if (_begun) throw new Exception("Cannot call Begin before end has been called!");
+			Log.Info("Spritebatch started!");
 			_begun = true;
 			CallingThread = Thread.CurrentThread.ManagedThreadId;
 
@@ -84,11 +93,13 @@ namespace Alex.Engine.Graphics.Sprites
 
 			_material.Effect.Begin(commandList);
 			//_material.SetSampler(GraphicsDevice.PointSampl
+
 			_materialConstantsVSBuffer.Value.Projection =
 				Matrix4x4.CreateOrthographicOffCenter(0, Game.Viewport.Width, Game.Viewport.Height, 0, 0, 1);
 
 			_materialConstantsVSBuffer.Update(commandList);
 			_material.SetMaterialConstantsVS(_materialConstantsVSBuffer.Buffer);
+			//_commandList.UpdateBuffer(_materialConstantsVSBuffer.Buffer, 0, _materialConstantsVSBuffer.Value.Projection);
 
 			_currentBatchIndex = 0;
 			
@@ -106,10 +117,6 @@ namespace Alex.Engine.Graphics.Sprites
 				_vertices[1] = batchItem.VertexTR;
 				_vertices[2] = batchItem.VertexBL;
 				_vertices[3] = batchItem.VertexBR;
-				
-				_commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
-				_commandList.SetVertexBuffer(0, _vertexBuffer);
-				//_commandList.u
 
 				_material.SetTexture(batchItem.Texture);
 
@@ -119,18 +126,22 @@ namespace Alex.Engine.Graphics.Sprites
 				_material.Effect.ApplyPipelineState(_commandList);
 				_material.Effect.ApplyParameters(_commandList);
 
-				_commandList.SetPipeline(_material.Effect._pipelineState);
+				_commandList.SetPipeline(_material.Effect.PipelineState);
 				var indexCount = batchItem.ItemType == SpriteBatchItemType.Quad ? 6u : 3u;
-				 
+
+				_commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
+				_commandList.SetVertexBuffer(0, _vertexBuffer);
+
 				_commandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
 
-				_commandList.DrawIndexed(indexCount);
+				_commandList.DrawIndexed(indexCount, 1, 0, 0, 0);
 			}
+			//GraphicsDevice.SubmitCommands(_commandList);
 
+			CallingThread = -1;
 			_begun = false;
-			//Push to GPU
-
-			//	GraphicsDevice.
+			Log.Info($"Spritebatch ended!");
+			//Ready for another begin. :)
 		}
 
 		private ref SpriteBatchItem CreateBatchItem()

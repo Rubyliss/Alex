@@ -57,7 +57,7 @@ namespace Alex.Gamestates.Playing
 			Viewport viewPort = Viewport;
 			SpriteBatch sb = args.SpriteBatch;
 
-			sb.Begin(args.Commands);
+			sb.Begin(ref args.Commands);
 
 			sb.FillRectangle(new Rectangle(0, 0, (int) viewPort.Width, (int)viewPort.Height), Color.FromArgb(128, Color.Black));// new Color(Color.Black, 0.5f));
 

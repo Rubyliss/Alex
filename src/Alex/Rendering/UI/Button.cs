@@ -40,7 +40,7 @@ namespace Alex.Rendering.UI
 		        ButtonTexture = TextureUtils.ImageToTexture2D(args.GraphicsDevice, Resources.ButtonState1);
 			}
 
-            args.SpriteBatch.Begin(args.Commands, SpriteSortMode.Deferred);
+            args.SpriteBatch.Begin(ref args.Commands, SpriteSortMode.Deferred);
 
 			ButtonRectangle = new Rectangle((int) Location.X,(int) Location.Y, (int) Size.X, (int) Size.Y);
             args.SpriteBatch.Draw(Hovering ? HoverTexture : ButtonTexture, ButtonRectangle, Color.Cornsilk);

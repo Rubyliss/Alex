@@ -37,7 +37,7 @@ namespace Alex.Gamestates
 
 	    protected override void OnDraw2D(RenderArgs args)
 	    {
-			args.SpriteBatch.Begin(args.Commands);
+			args.SpriteBatch.Begin(ref args.Commands);
 		   var bounds = Alex.Window.Bounds;
 			//Start draw background
 			var retval = new Rectangle(

@@ -62,7 +62,7 @@ namespace Alex.Rendering.UI
                 measureString = Alex.Font.MeasureString(s);
             }
 
-            args.SpriteBatch.Begin(args.Commands);
+            args.SpriteBatch.Begin(ref args.Commands);
 
             args.SpriteBatch.Draw(ButtonTexture, ButtonRectangle, Color.Cornsilk);
             args.SpriteBatch.DrawString(Alex.Font, s,
