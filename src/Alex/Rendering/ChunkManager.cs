@@ -30,12 +30,12 @@ namespace Alex.Rendering
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger(typeof(ChunkManager));
 
 		private GraphicsDevice Graphics { get; }
-        private Camera.Camera Camera { get; }
         private IWorld World { get; }
 	    private Alex Game { get; }
 
 	    private int _chunkUpdates = 0;
 	    public int ChunkUpdates => _chunkUpdates;
+	    public int LowPriortiyUpdates => LowPriority.Count;
 	    public int ChunkCount => Chunks.Count;
 
 	    public AlphaTestEffect TransparentEffect { get; }
@@ -45,18 +45,17 @@ namespace Alex.Rendering
 	    public int RenderedChunks { get; private set; } = 0;
 
 	    private SkylightCalculations SkylightCalculator { get; set; }
-		public ChunkManager(Alex alex, GraphicsDevice graphics, Camera.Camera camera, IWorld world)
+		public ChunkManager(Alex alex, GraphicsDevice graphics, IWorld world)
 		{
 			Game = alex;
             Graphics = graphics;
-            Camera = camera;
             World = world;
             Chunks = new ConcurrentDictionary<ChunkCoordinates, IChunkColumn>();
 
 			SkylightCalculator = new SkylightCalculations(world);
 
-			var distance = (float)Math.Pow(alex.GameSettings.RenderDistance, 2);
-			var fogStart = distance - (distance * 0.35f);
+			var distance = (float)Math.Pow(alex.GameSettings.RenderDistance, 2) * 0.8f;
+			var fogStart = 0;//distance - (distance * 0.35f);
 			TransparentEffect = new AlphaTestEffect(Graphics)
 			{
 				Texture = alex.Resources.Atlas.GetAtlas(),
@@ -88,7 +87,8 @@ namespace Alex.Rendering
 			Updater = new Thread(ChunkUpdateThread)
             {IsBackground = true};
 
-			ChunksToUpdate = new ConcurrentQueue<ChunkCoordinates>();
+			HighPriority = new ConcurrentQueue<ChunkCoordinates>();
+			LowPriority = new ConcurrentQueue<ChunkCoordinates>();
         }
 
 	    public void Start()
@@ -98,8 +98,10 @@ namespace Alex.Rendering
 
 		//private ThreadSafeList<Entity> Entities { get; private set; } 
 
-	    private ConcurrentQueue<ChunkCoordinates> ChunksToUpdate { get; set; }
-	    private ConcurrentDictionary<ChunkCoordinates, IChunkColumn> Chunks { get; }
+	    private ConcurrentQueue<ChunkCoordinates> HighPriority { get; set; }
+	    private ConcurrentQueue<ChunkCoordinates> LowPriority { get; set; }
+
+		private ConcurrentDictionary<ChunkCoordinates, IChunkColumn> Chunks { get; }
 	    private readonly ThreadSafeList<ChunkCoordinates> _renderedChunks = new ThreadSafeList<ChunkCoordinates>();
 
 		private Thread Updater { get; }
@@ -109,6 +111,9 @@ namespace Alex.Rendering
 
 	    private int RunningThreads = 0;
 		private ManualResetEventSlim UpdateResetEvent = new ManualResetEventSlim(true);
+
+		private Vector3 CameraPosition = Vector3.Zero;
+	    private BoundingFrustum CameraBoundingFrustum = new BoundingFrustum(Matrix.Identity);
 		private void ChunkUpdateThread()
 		{
 			int maxThreads = Game.GameSettings.ChunkThreads; //Environment.ProcessorCount / 2;
@@ -119,13 +124,31 @@ namespace Alex.Rendering
 			{
 				try
 				{
-					ChunkCoordinates i;
-					if (ChunksToUpdate.TryDequeue(out i))
+					//bool doingLowPriority = false;
+					ChunkCoordinates? i = null;
+					if (HighPriority.TryDequeue(out ChunkCoordinates ci))
+					{
+						i = ci;
+					}
+					else
+					{
+						if (LowPriority.TryDequeue(out ChunkCoordinates cic))
+						{
+							i = cic;
+							//doingLowPriority = true;
+						}
+						else
+						{
+							i = null;
+						}
+					}
+
+					if (i.HasValue)
 					{
 						UpdateResetEvent.Wait(CancelationToken.Token);
 
-						IChunkColumn chunk;
-						if (i.DistanceTo(new ChunkCoordinates(Camera.Position)) > radiusSquared || !Chunks.TryGetValue(i, out chunk))
+						IChunkColumn chunk = null;
+						if (i.Value.DistanceTo(new ChunkCoordinates(CameraPosition)) > radiusSquared || !Chunks.TryGetValue(i.Value, out chunk))
 						{
 							Interlocked.Decrement(ref _chunkUpdates);
 							continue;
@@ -133,14 +156,26 @@ namespace Alex.Rendering
 
 						try
 						{
-
-							int newThreads = Interlocked.Increment(ref RunningThreads);
-							if (newThreads == maxThreads)
-							{
-								UpdateResetEvent.Reset();
-							}
 							
-							Task.Run(() => { UpdateChunk(chunk); }).ContinueWith(ContinuationAction);
+							if (IsWithinView(chunk, CameraBoundingFrustum))
+							{
+								int newThreads = Interlocked.Increment(ref RunningThreads);
+								if (newThreads == maxThreads)
+								{
+									UpdateResetEvent.Reset();
+								}
+
+								Task.Run(() => { UpdateChunk(chunk); }).ContinueWith(ContinuationAction);
+							}
+							else
+							{
+								if (i.Value.DistanceTo(new ChunkCoordinates(CameraPosition)) <= radiusSquared)
+								{
+									LowPriority.Enqueue(i.Value);
+								}
+
+								//	Interlocked.Decrement(ref _chunkUpdates);
+							}
 						}
 						catch (TaskCanceledException)
 						{
@@ -161,6 +196,15 @@ namespace Alex.Rendering
 			if (!CancelationToken.IsCancellationRequested)
 				Log.Warn($"Chunk update loop has unexpectedly ended!");
 		}
+
+	    private bool IsWithinView(IChunkColumn chunk, BoundingFrustum frustum)
+	    {
+		    var chunkPos = new Vector3(chunk.X * ChunkColumn.ChunkWidth, 0, chunk.Z * ChunkColumn.ChunkDepth);
+		    return frustum.Intersects(new Microsoft.Xna.Framework.BoundingBox(chunkPos,
+			    chunkPos + new Vector3(ChunkColumn.ChunkWidth, 16 * ((chunk.GetHeighest() >> 4) + 1),
+				    ChunkColumn.ChunkDepth)));
+
+	    }
 
 	    private void ContinuationAction(Task task)
 	    {
@@ -256,14 +300,15 @@ namespace Alex.Rendering
 	    public void Draw(IRenderArgs args)
 	    {
 		    var device = args.GraphicsDevice;
+		    var camera = args.Camera;
 
 		    Stopwatch sw = Stopwatch.StartNew();
+			
+		    TransparentEffect.View = camera.ViewMatrix;
+		    TransparentEffect.Projection = camera.ProjectionMatrix;
 
-		    TransparentEffect.View = Camera.ViewMatrix;
-		    TransparentEffect.Projection = Camera.ProjectionMatrix;
-
-		    OpaqueEffect.View = Camera.ViewMatrix;
-		    OpaqueEffect.Projection = Camera.ProjectionMatrix;
+		    OpaqueEffect.View = camera.ViewMatrix;
+		    OpaqueEffect.Projection = camera.ProjectionMatrix;
 
 			var r = _renderedChunks.ToArray();
 		    var chunks = new KeyValuePair<ChunkCoordinates, IChunkColumn>[r.Length];
@@ -392,12 +437,21 @@ namespace Alex.Rendering
 		    }
 	    }
 
-	    public void Update()
+	    public void Update(IUpdateArgs args, SkyboxModel skyRenderer)
 	    {
+		    TransparentEffect.FogColor = skyRenderer.WorldFogColor.ToVector3();
+		    OpaqueEffect.FogColor = skyRenderer.WorldFogColor.ToVector3();
+		    OpaqueEffect.AmbientLightColor = TransparentEffect.DiffuseColor =
+			    Color.White.ToVector3() * new Vector3((skyRenderer.BrightnessModifier));
+
+		    var camera = args.Camera;
+		    CameraBoundingFrustum = camera.BoundingFrustum;
+		    CameraPosition = camera.Position;
+
 			var renderedChunks = Chunks.ToArray().Where(x =>
 		    {
 			    var chunkPos = new Vector3(x.Key.X * ChunkColumn.ChunkWidth, 0, x.Key.Z * ChunkColumn.ChunkDepth);
-			    return Camera.BoundingFrustum.Intersects(new Microsoft.Xna.Framework.BoundingBox(chunkPos,
+			    return camera.BoundingFrustum.Intersects(new Microsoft.Xna.Framework.BoundingBox(chunkPos,
 				    chunkPos + new Vector3(ChunkColumn.ChunkWidth, 16 * ((x.Value.GetHeighest() >> 4) + 1),
 					    ChunkColumn.ChunkDepth)));
 		    }).Select(x => x.Key).ToArray();
@@ -454,7 +508,15 @@ namespace Alex.Rendering
 
 			    chunk.Scheduled = type;
 
-			    ChunksToUpdate.Enqueue(position);
+			    if (IsWithinView(chunk, CameraBoundingFrustum))
+			    {
+				    HighPriority.Enqueue(position);
+			    }
+			    else
+			    {
+					LowPriority.Enqueue(position);
+			    }
+
 			    _updateResetEvent.Set();
 
 			    Interlocked.Increment(ref _chunkUpdates);

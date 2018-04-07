@@ -1,26 +1,21 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Alex.API.Blocks.Properties;
 using Alex.API.Blocks.State;
 using Alex.Blocks;
 using Alex.Blocks.Properties;
 using Alex.Blocks.State;
-using Alex.Graphics.Models;
+using Alex.Graphics.Models.Blocks;
 using Alex.ResourcePackLib;
-using Alex.ResourcePackLib.Json;
 using Alex.ResourcePackLib.Json.BlockStates;
-using Alex.Worlds;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-using BlockState = Alex.ResourcePackLib.Json.BlockStates.BlockState;
+using BlockState = Alex.Blocks.State.BlockState;
+using BlockStateVariant = Alex.ResourcePackLib.Json.BlockStates.BlockStateVariant;
 
 namespace Alex
 {
@@ -29,14 +24,11 @@ namespace Alex
 		private static NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger(typeof(BlockFactory));
 
 		public static IReadOnlyDictionary<uint, IBlockState> AllBlockstates => new ReadOnlyDictionary<uint, IBlockState>(RegisteredBlockStates);
-		public static IReadOnlyDictionary<string, IBlockState> AllBlockstatesByName => new ReadOnlyDictionary<string, IBlockState>(BlockStateByName);
+		public static IReadOnlyDictionary<string, BlockStateVariantMapper> AllBlockstatesByName => new ReadOnlyDictionary<string, BlockStateVariantMapper>(BlockStateByName);
+
 		private static readonly Dictionary<uint, IBlockState> RegisteredBlockStates = new Dictionary<uint, IBlockState>();
-		private static readonly Dictionary<string, IBlockState> BlockStateByName = new Dictionary<string, IBlockState>();
-
-		//private static readonly Dictionary<uint, Block> RegisteredBlocks = new Dictionary<uint, Block>();
+		private static readonly Dictionary<string, BlockStateVariantMapper> BlockStateByName = new Dictionary<string, BlockStateVariantMapper>();
 		private static readonly Dictionary<uint, BlockModel> ModelCache = new Dictionary<uint, BlockModel>();
-
-		private static readonly Dictionary<string, BlockMeta> CachedBlockMeta = new Dictionary<string, BlockMeta>();
 
 		private static ResourcePackLib.Json.Models.Blocks.BlockModel CubeModel { get; set; }
 		public static readonly LiquidBlockModel StationairyWaterModel = new LiquidBlockModel()
@@ -67,67 +59,6 @@ namespace Alex
 			Level = 8
 		};
 
-		internal static void Init()
-		{
-			JArray blockArray = JArray.Parse(Encoding.UTF8.GetString(Resources.blocks));
-			Dictionary<string, JObject> blockMetaDictionary =
-				JsonConvert.DeserializeObject<Dictionary<string, JObject>>(
-					Encoding.UTF8.GetString(Resources.blockstates_without_models_pretty));
-			foreach (var item in blockArray)
-			{
-				byte id = 0;
-				bool transparent = false;
-				string name = string.Empty;
-				string displayName = string.Empty;
-
-				foreach (dynamic entry in item)
-				{
-					if (entry.Name == "id")
-					{
-						id = entry.Value;
-					}
-					else if (entry.Name == "transparent")
-					{
-						transparent = entry.Value;
-					}
-					else if (entry.Name == "name")
-					{
-						name = entry.Value;
-					}
-					else if (entry.Name == "displayName")
-					{
-						displayName = entry.Value;
-					}
-				}
-
-				if (id == 0 || string.IsNullOrWhiteSpace(name)) continue;
-
-				BlockMeta meta = new BlockMeta
-				{
-					ID = id,
-					Transparent = transparent,
-					DisplayName = displayName,
-					Name = name,
-					Solid = true
-				};
-
-				JObject found = blockMetaDictionary
-					.FirstOrDefault(x => x.Key.StartsWith($"minecraft:{name}", StringComparison.InvariantCultureIgnoreCase)).Value;
-				if (found != null)
-				{
-					meta.AmbientOcclusionLightValue = found["ambientOcclusionLightValue"].Value<double>();
-					meta.IsFullBlock = found["isFullBlock"].Value<bool>();
-					meta.LightOpacity = found["lightOpacity"].Value<int>();
-					meta.LightValue = found["lightValue"].Value<int>();
-					meta.IsBlockNormalCube = found["isBlockNormalCube"].Value<bool>();
-					meta.IsSideSolid = found["isSideSolid"].ToObject<Dictionary<string, bool>>();
-					meta.IsFullCube = found["isFullCube"].Value<bool>();
-				}
-				CachedBlockMeta.TryAdd($"minecraft:{displayName.Replace(" ", "_").ToLowerInvariant()}", meta);
-				CachedBlockMeta.TryAdd($"minecraft:{name}", meta);
-			}
-		}
-
 		private static BlockModel GetOrCacheModel(ResourceManager resources, McResourcePack resourcePack, IBlockState state, uint id)
 		{
 			if (ModelCache.TryGetValue(id, out var r))
@@ -142,6 +73,12 @@ namespace Alex
 					return null;
 				}
 
+
+				if (state.GetTypedValue(WaterLoggedProperty))
+				{
+					result = new MultiBlockModel(result, StationairyWaterModel);
+				}
+
 				if (!ModelCache.TryAdd(id, result))
 				{
 					Log.Warn($"Could not register model in cache! {state.Name} - {state.ID}");
@@ -149,23 +86,6 @@ namespace Alex
 
 				return result;
 			}
-		}
-
-		public partial class TableEntry
-		{
-			[JsonProperty("runtimeID")]
-			public uint RuntimeId { get; set; }
-
-			[JsonProperty("name")]
-			public string Name { get; set; }
-
-			[JsonProperty("id")]
-			public long Id { get; set; }
-
-			[JsonProperty("data")]
-			public long Data { get; set; }
-
-			public static TableEntry[] FromJson(string json) => JsonConvert.DeserializeObject<TableEntry[]>(json);
 		}
 
 		private static bool _builtin = false;
@@ -186,6 +106,15 @@ namespace Alex
 			{
 				cube.Textures["all"] = "no_texture";
 				CubeModel = cube;
+
+				UnknownBlockModel = new CachedResourcePackModel(resources, new BlockStateModel[]
+				{
+					new BlockStateModel()
+					{
+						Model = CubeModel,
+						ModelName = "Unknown model",
+					}
+				});
 			}
 
 			RegisterBuiltinBlocks();
@@ -193,27 +122,31 @@ namespace Alex
 			return LoadModels(resources, resourcePack, replace, reportMissing);
 		}
 
+		private static PropertyBool WaterLoggedProperty = new PropertyBool("waterlogged");
 		internal static bool GenerateClasses { get; set; } = false;
+		private static BlockModel UnknownBlockModel { get; set; }
 		private static int LoadModels(ResourceManager resources, McResourcePack resourcePack, bool replace,
 			bool reportMissing)
 		{
 			StringBuilder factoryBuilder = new StringBuilder();
 
-			TableEntry[] tablesEntries = TableEntry.FromJson(Resources.runtimeid_table);
 			var data = BlockData.FromJson(Resources.NewBlocks);
 			int importCounter = 0;
 
 			uint c = 0;
 			foreach (var entry in data)
 			{
-				Blocks.State.BlockState state = new Blocks.State.BlockState();
-				state.Name = entry.Key;
+				var variantMap = new BlockStateVariantMapper();
+				var state = new BlockState
+				{
+					Name = entry.Key
+				};
 
 				if (entry.Value.Properties != null)
 				{
 					foreach (var property in entry.Value.Properties)
 					{
-						state = (Blocks.State.BlockState)state.WithProperty(new DynamicStateProperty(property.Key, property.Value), property.Value.FirstOrDefault());
+						state = (BlockState)state.WithPropertyNoResolve(new DynamicStateProperty(property.Key, property.Value), property.Value.FirstOrDefault(), false);
 					}
 				}
 
@@ -221,66 +154,45 @@ namespace Alex
 				{
 					var id = s.ID;
 
-					Blocks.State.BlockState blockStateData = (Blocks.State.BlockState)state.Clone();
-					blockStateData.Variants.Clear();
-					
-					blockStateData.Name = state.Name;
-					blockStateData.ID = id;
+					BlockState variantState = (BlockState)(state).CloneSilent();
+					variantState.ID = id;
+					variantState.VariantMapper = variantMap;
 
 					if (s.Properties != null)
 					{
 						foreach (var property in s.Properties)
 						{
-							blockStateData = (Blocks.State.BlockState)blockStateData.WithProperty(StateProperty.Parse(property.Key), property.Value);
+							var prop = StateProperty.Parse(property.Key);
+							variantState = (Blocks.State.BlockState)variantState.WithPropertyNoResolve(prop, property.Value, false);
+							if (s.Default)
+							{
+								state = (BlockState) state.WithPropertyNoResolve(prop, property.Value, false);
+							}
 						}
 					}
 
 					if (RegisteredBlockStates.TryGetValue(id, out IBlockState st))
 					{
-						Log.Warn($"Duplicate blockstate id (Existing: {st.Name}[{st.ToString()}] | New: {entry.Key}[{blockStateData.ToString()}]) ");
+						Log.Warn($"Duplicate blockstate id (Existing: {st.Name}[{st.ToString()}] | New: {entry.Key}[{variantState.ToString()}]) ");
 						continue;
 					}
 
 					{
-						var cachedBlockModel = GetOrCacheModel(resources, resourcePack, blockStateData, id);
+						var cachedBlockModel = GetOrCacheModel(resources, resourcePack, variantState, id);
 						if (cachedBlockModel == null)
 						{
 							if (reportMissing)
-								Log.Warn($"Missing blockmodel for blockstate {entry.Key}[{blockStateData.ToString()}]");
+								Log.Warn($"Missing blockmodel for blockstate {entry.Key}[{variantState.ToString()}]");
 
-							cachedBlockModel = new CachedResourcePackModel(resources, new BlockStateModel[]
-							{
-								new BlockStateModel()
-								{
-									Model = CubeModel,
-									ModelName = "Unknown model",
-								}
-							});
+							cachedBlockModel = UnknownBlockModel;
 						}
 
 						string displayName = entry.Key;
 						var block = GetBlockByName(entry.Key);
 						if (block == null)
 						{
-							block = new Block(id);
+							block = new UnknownBlock(id);
 							displayName = $"(Not implemented) {displayName}";
-
-							bool foundMeta = false;
-							BlockMeta knownMeta = null;
-							if (CachedBlockMeta.TryGetValue(entry.Key, out knownMeta))
-							{
-								foundMeta = true;
-								block.Transparent = knownMeta.Transparent;
-								block.LightValue = knownMeta.LightValue;
-								block.AmbientOcclusionLightValue = knownMeta.AmbientOcclusionLightValue;
-								block.LightOpacity = knownMeta.LightOpacity;
-								block.IsBlockNormalCube = knownMeta.IsBlockNormalCube;
-								block.IsFullCube = knownMeta.IsFullCube;
-								block.IsFullBlock = knownMeta.IsFullBlock;
-								block.Solid = knownMeta.Solid;
-								block.Drag = knownMeta.FrictionFactor;
-								block.IsReplacible = knownMeta.Replacible;
-							}
 
 							block.Name = entry.Key;
 
@@ -290,57 +202,79 @@ namespace Alex
 
 								factoryBuilder.AppendLine($"\t\t\telse if (blockName == \"{entry.Key.ToLowerInvariant()}\" || blockName == \"{className.ToLowerInvariant()}\") return new {className}();");
 
-								SaveBlock(block, className, foundMeta);
+								SaveBlock(block, className, false);
 								Log.Info($"Saved un-implemnted block to file ({displayName})!");
 							}
 						}
 
-						block.BlockStateID = id;
-						block.Name = entry.Key;
-						block.BlockModel = cachedBlockModel;
-
-						block.BlockState = blockStateData;
-						block.DisplayName = displayName;
-
-						blockStateData.Block = block;
-						blockStateData.Default = state;
-
-						if (s.Default) //This is the default variant.
+						if (block.IsSourceBlock && !(cachedBlockModel is MultiBlockModel) && !(cachedBlockModel is LiquidBlockModel))
 						{
-							state.Block = block;
-							state.Default = blockStateData;
-							state.ID = id;
-						}
-						else
-						{
-							state.Variants.Add(blockStateData);
-							if (!RegisteredBlockStates.TryAdd(id, blockStateData))
+							if (block.IsWater)
 							{
-								Log.Warn($"Failed to add blockstate (variant), key already exists! ({blockStateData.Name})");
+								cachedBlockModel = new MultiBlockModel(cachedBlockModel, StationairyWaterModel);
 							}
 							else
 							{
-								importCounter++;
+								cachedBlockModel = new MultiBlockModel(cachedBlockModel, StationairyLavaModel);
 							}
+
+							block.Transparent = true;
+						}
+
+						if (variantState.GetTypedValue(WaterLoggedProperty))
+						{
+							block.Transparent = true;
+						}
+
+						variantState.Block = block;
+						variantState.Model = cachedBlockModel;
+
+						block.Name = entry.Key;
+						block.BlockState = variantState;
+						block.DisplayName = displayName;
+
+						if (s.Default) //This is the default variant.
+						{
+							variantMap._default = variantState;
+							//variantState.Default = variantState;
+							//variantState.Variants.AddRange(state.Variants);
+							//state = variantState;
+						}
+						else
+						{
+							if (!variantMap.TryAdd(variantState))
+							{
+								Log.Warn($"Could not add variant to variantmapper! ({variantState.ID} - {variantState.Name})");
+								continue;
+							}
+						}
+
+						if (!RegisteredBlockStates.TryAdd(id, variantState))
+						{
+							Log.Warn($"Failed to add blockstate (variant), key already exists! ({variantState.ID} - {variantState.Name})");
+						}
+						else
+						{
+							importCounter++;
 						}
 					}
 				}
 
-				if (!RegisteredBlockStates.TryAdd(state.ID, state))
+			/*	if (!RegisteredBlockStates.TryAdd(state.ID, state))
 				{
 					Log.Warn($"Failed to register default blockstate! {state.Name} - {state.ID}");
 				}
-
-				if (!BlockStateByName.TryAdd(state.Name, state))
+				*/
+				if (!BlockStateByName.TryAdd(state.Name, variantMap))
 				{
 					Log.Warn($"Failed to add blockstate, key already exists! ({state.Name})");
 				}
 				else
 				{
-					foreach (var bsVariant in state.Variants.Cast<Blocks.State.BlockState>())
-					{
-						bsVariant.Variants.AddRange(state.Variants.Where(x => !x.ID.Equals(bsVariant.ID)));
-					}
+					//foreach (var bsVariant in state.Variants.ToArray().Cast<BlockState>())
+					//{
+					//	bsVariant.Variants.AddRange(state.Variants.Where(x => !x.ID.Equals(bsVariant.ID)));
+					//}
 				}
 			}
 
@@ -363,7 +297,7 @@ namespace Alex
 
 			builder.AppendLine($"\tpublic class {className} : Block");
 			builder.AppendLine("\t{");
-			builder.AppendLine($"\t\tpublic {className}() : base({block.BlockStateID.ToString()})");
+			builder.AppendLine($"\t\tpublic {className}() : base({block.BlockState.ID.ToString()})");
 			builder.AppendLine("\t\t{");
 			builder.AppendLine($"\t\t\tSolid = {block.Solid.ToString().ToLower()};");
 			builder.AppendLine($"\t\t\tTransparent = {block.Transparent.ToString().ToLower()};");
@@ -447,22 +381,26 @@ namespace Alex
 				return StationairyLavaModel;
 			}
 
-			BlockState blockState;
+			BlockStateResource blockStateResource;
 
-			if (resourcePack.BlockStates.TryGetValue(name, out blockState))
+			if (resourcePack.BlockStates.TryGetValue(name, out blockStateResource))
 			{
-				if (blockState != null && blockState.Parts != null && blockState.Parts.Length > 0)
+				if (blockStateResource != null && blockStateResource.Parts != null && blockStateResource.Parts.Length > 0)
 				{
-					return new MultiStateResourcePackModel(resources, blockState);
+					if (state is BlockState ss)
+					{
+						ss.IsMultiPart = true;
+					}
+					return new CachedResourcePackModel(resources, MultiPartModels.GetModels(state, blockStateResource));
 				}
 
-				if (blockState.Variants == null ||
-					blockState.Variants.Count == 0)
+				if (blockStateResource.Variants == null ||
+					blockStateResource.Variants.Count == 0)
 					return null;
 
-				if (blockState.Variants.Count == 1)
+				if (blockStateResource.Variants.Count == 1)
 				{
-					var v = blockState.Variants.FirstOrDefault();
+					var v = blockStateResource.Variants.FirstOrDefault();
 					return new CachedResourcePackModel(resources, new[] { v.Value.FirstOrDefault() });
 				}
 
@@ -471,7 +409,7 @@ namespace Alex
 				var data = state.ToDictionary();
 				int closestMatch = 0;
 				KeyValuePair<string, BlockStateVariant> closest = default(KeyValuePair<string, BlockStateVariant>);
-				foreach (var v in blockState.Variants)
+				foreach (var v in blockStateResource.Variants)
 				{
 					int matches = 0;
 					var variantBlockState = Blocks.State.BlockState.FromString(v.Key);
@@ -487,10 +425,13 @@ namespace Alex
 						}
 					}
 
-					if (matches > closestMatch)
+					if (matches > closestMatch || matches == data.Count)
 					{
 						closestMatch = matches;
 						closest = v;
+
+						if (matches == data.Count)
+							break;
 					}
 				}
 
@@ -498,7 +439,7 @@ namespace Alex
 
 				if (blockStateVariant == null)
 				{
-					var a = blockState.Variants.FirstOrDefault();
+					var a = blockStateResource.Variants.FirstOrDefault();
 					blockStateVariant = a.Value;
 				}
 
@@ -510,18 +451,13 @@ namespace Alex
 			return null;
 		}
 
-		private static readonly IBlockState AirState = new Blocks.State.BlockState();
-
-		public static IBlockState GetBlockState(int blockId, byte meta)
-		{
-			return GetBlockState(GetBlockStateID(blockId, meta));
-		}
+		private static readonly IBlockState AirState = new BlockState();
 
 		public static IBlockState GetBlockState(string palleteId)
 		{
 			if (BlockStateByName.TryGetValue(palleteId, out var result))
 			{
-				return result;
+				return result.GetDefaultState();
 			}
 
 			return AirState;
@@ -652,7 +588,7 @@ namespace Alex
 			else if (blockName == "minecraft:quartz_block" || blockName == "quartzblock") return new QuartzBlock();
 			else if (blockName == "minecraft:activator_rail" || blockName == "activatorrail") return new ActivatorRail();
 			else if (blockName == "minecraft:dropper" || blockName == "dropper") return new Dropper();
-			else if (blockName == "minecraft:iron_trapdoor" || blockName == "irontrapdoor") return new IronTrapdoor();
+			
 			else if (blockName == "minecraft:prismarine" || blockName == "prismarine") return new Prismarine();
 			else if (blockName == "minecraft:sea_lantern" || blockName == "sealantern") return new SeaLantern();
 			else if (blockName == "minecraft:hay_block" || blockName == "hayblock") return new HayBlock();
@@ -727,6 +663,9 @@ namespace Alex
 			else if (blockName == "minecraft:dark_oak_door" || blockName == "darkoakdoor") return new DarkOakDoor();
 			else if (blockName == "minecraft:iron_door" || blockName == "irondoor") return new IronDoor();
 
+			else if (blockName == "minecraft:iron_trapdoor" || blockName == "irontrapdoor") return new IronTrapdoor();
+			else if (blockName == "minecraft:spruce_trapdoor" || blockName == "sprucetrapdoro") return new Trapdoor("minecraft:spruce_trapdoor");
+
 			//Slabs
 			else if (blockName == "minecraft:stone_slab" || blockName == "stoneslab") return new StoneSlab();
 			else if (blockName == "minecraft:red_sandstone_slab" || blockName == "redsandstoneslab") return new RedSandstoneSlab();
@@ -763,10 +702,15 @@ namespace Alex
 			else if (blockName == "minecraft:oak_fence" || blockName == "oakfence") return new OakFence();
 			else if (blockName == "minecraft:oak_fence_gate" || blockName == "oakfencegate") return new FenceGate();
 			else if (blockName == "minecraft:dark_oak_fence_gate" || blockName == "darkoakfencegate") return new DarkOakFenceGate();
+			else if (blockName == "minecraft:dark_oak_fence" || blockName == "darkoakfence") return new Fence();
 			else if (blockName == "minecraft:spruce_fence_gate" || blockName == "sprucefencegate") return new SpruceFenceGate();
+			else if (blockName == "minecraft:spruce_fence" || blockName == "sprucefence") return new Fence();
 			else if (blockName == "minecraft:birch_fence_gate" || blockName == "birchfencegate") return new BirchFenceGate();
+			else if (blockName == "minecraft:birch_fence" || blockName == "birchfence") return new BirchFence();
 			else if (blockName == "minecraft:jungle_fence_gate" || blockName == "junglefencegate") return new JungleFenceGate();
+			else if (blockName == "minecraft:jungle_fence" || blockName == "junglefence") return new Fence();
 			else if (blockName == "minecraft:acacia_fence_gate" || blockName == "acaciafencegate") return new AcaciaFenceGate();
+			else if (blockName == "minecraft:acacia_fence" || blockName == "acaciafence") return new Fence();
 
 			//Stairs
 			else if (blockName == "minecraft:purpur_stairs" || blockName == "purpurstairs") return new PurpurStairs();
@@ -787,6 +731,7 @@ namespace Alex
 			//Liquid
 			else if (blockName == "minecraft:water" || blockName == "water") return new Water();
 			else if (blockName == "minecraft:lava" || blockName == "lava") return new Lava();
+			else if (blockName == "minecraft:kelp" || blockName == "kelp") return new Kelp();
 
 			//Ores
 			else if (blockName == "minecraft:redstone_ore" || blockName == "redstoneore") return new RedstoneOre();
@@ -812,29 +757,55 @@ namespace Alex
 			if (palleteId == 0) return Air;
 			if (RegisteredBlockStates.TryGetValue(palleteId, out IBlockState b))
 			{
-				return (Block) b.GetBlock();
+				return (Block) b.Block;
 			}
 
-			return new Block(palleteId)
+			var state = new BlockState()
 			{
-				BlockModel = new CachedResourcePackModel(null, new[] { new BlockStateModel
+				Model = new CachedResourcePackModel(null, new[]
 				{
-					Model = CubeModel,
-					ModelName = CubeModel.Name,
-					Y = 0,
-					X = 0,
-					Uvlock = false,
-					Weight = 0
-				}}),
+					new BlockStateModel
+					{
+						Model = CubeModel,
+						ModelName = CubeModel.Name,
+						Y = 0,
+						X = 0,
+						Uvlock = false,
+						Weight = 0
+					}
+				}),
+			};
+
+			var result = new Block(palleteId)
+			{
+				BlockState = state,
 				Transparent = false,
 				DisplayName = "Unknown"
 			};
+			state.Block = result;
+			return result;
 		}
 
+		private static TableEntry[] _tablesEntries = TableEntry.FromJson(Resources.runtimeid_table);
 		public static Block GetBlock(int id, byte metadata)
 		{
+			throw new NotSupportedException();
 			if (id == 0) return Air;
-			return GetBlock(GetBlockStateID(id, metadata));
+
+			var matchingIds = _tablesEntries.Where(x => x.Id == id);
+			var f = matchingIds.FirstOrDefault(x => x.Data == metadata);
+			if (f == null)
+			{
+				f = matchingIds.FirstOrDefault();
+			}
+
+			if (BlockStateByName.TryGetValue(f.Name, out var vv))
+			{
+				return (Block)vv._default.Block;
+			}
+
+			return Air;
+			//	return GetBlock(GetBlockStateID(id, metadata));
 		}
 
 		public static uint GetBlockStateID(int id, byte meta)
@@ -850,23 +821,21 @@ namespace Alex
 			meta = (byte)(stateId & 0x0F);
 		}
 
-		private class BlockMeta
+		public partial class TableEntry
 		{
-			public int ID = -1;
-			public string Name;
-			public string DisplayName;
-			public bool Transparent;
-			public bool IsFullBlock;
-			public double AmbientOcclusionLightValue = 1.0;
-			public int LightValue;
-			public int LightOpacity;
-			public bool IsBlockNormalCube;
-			public bool IsFullCube;
-			public bool Solid;
-			public float FrictionFactor;
+			[JsonProperty("runtimeID")]
+			public uint RuntimeId { get; set; }
 
-			public Dictionary<string, bool> IsSideSolid;
-			public bool Replacible;
+			[JsonProperty("name")]
+			public string Name { get; set; }
+
+			[JsonProperty("id")]
+			public long Id { get; set; }
+
+			[JsonProperty("data")]
+			public long Data { get; set; }
+
+			public static TableEntry[] FromJson(string json) => JsonConvert.DeserializeObject<TableEntry[]>(json);
 		}
 	}
 }

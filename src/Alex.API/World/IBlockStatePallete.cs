@@ -1,4 +1,5 @@
 ﻿using Alex.API.Blocks.State;
+using Alex.API.Utils;
 
 namespace Alex.API.World
 {
@@ -6,12 +7,6 @@ namespace Alex.API.World
 	{
 		uint IdFor(IBlockState state);
 		IBlockState GetBlockState(uint indexKey);
-
-		/*@SideOnly(Side.CLIENT)
-		void read(PacketBuffer buf);
-
-		void write(PacketBuffer buf);*/
-
-		int GetSerializedSize();
+		void Read(IMinecraftStream ms);
 	}
 }

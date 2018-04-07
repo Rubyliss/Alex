@@ -1,13 +1,13 @@
 ﻿using Alex.API.Blocks;
 using Alex.API.Blocks.State;
 using Alex.API.Graphics;
+using Alex.API.Utils;
 using Microsoft.Xna.Framework;
 
 namespace Alex.API.World
 {
 	public interface IBlock
 	{
-		uint BlockStateID { get; }
 		bool Solid { get; set; }
 		bool Transparent { get; set; }
 		bool Renderable { get; set; }
@@ -27,10 +27,10 @@ namespace Alex.API.World
 		int LightOpacity { get; set; }
 		IBlockState BlockState { get; set; }
 		bool IsWater { get; set; }
-		bool IsWaterSource { get; set; }
+		bool IsSourceBlock { get; set; }
 		IMaterial BlockMaterial { get; set; }
 
 		bool Tick(IWorld world, Vector3 position);
-		VertexPositionNormalTextureColor[] GetVertices(Vector3 position, IWorld world);
+		void BlockUpdate(IWorld world, BlockCoordinates position, BlockCoordinates updatedBlock);
 	}
 }

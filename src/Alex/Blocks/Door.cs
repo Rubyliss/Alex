@@ -30,6 +30,7 @@ namespace Alex.Blocks
 		//public bool IsRightHinch => (Metadata & 0x01) == 0x01;
 		public bool IsPowered => BlockState.GetTypedValue<bool>(POWERED); //(Metadata & 0x02) == 0x02;
 
+		protected bool CanOpen { get; set; } = true;
 		public Door(uint blockId) : base(blockId)
 		{
 			Transparent = true;
@@ -66,7 +67,25 @@ namespace Alex.Blocks
 
 		public override void Interact(IWorld world, BlockCoordinates position, BlockFace face, Entity sourceEntity)
 		{
-			
+			if (!IsUpper)
+			{
+				BlockState state = (BlockState)BlockState.WithProperty(OPEN, !IsOpen);
+				world.SetBlockState(position.X, position.Y, position.Z, state);
+			}
+		}
+
+		public override void BlockUpdate(IWorld world, BlockCoordinates position, BlockCoordinates updatedBlock)
+		{
+			if (IsUpper && updatedBlock.Y < position.Y)
+			{
+				var changedBlock = world.GetBlockState(updatedBlock.X, updatedBlock.Y, updatedBlock.Z);
+				if (!changedBlock.GetTypedValue(UPPER))
+				{
+					var myMeta = (BlockState) BlockState.WithProperty(OPEN, changedBlock.GetTypedValue(OPEN));
+					world.SetBlockState(position.X, position.Y, position.Z, myMeta);
+				}
+			}
+			Log.Info($"Door blockupdate called!");
 		}
 	}
 }

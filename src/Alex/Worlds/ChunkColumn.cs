@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Alex.API.Blocks.State;
 using Alex.API.Graphics;
 using Alex.API.World;
 using Alex.Blocks;
+using Alex.Blocks.State;
 using Alex.Blocks.Storage;
+using Alex.Networking.Java.Util;
+using Alex.Utils;
 using fNbt.Tags;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -41,8 +45,8 @@ namespace Alex.Worlds
 		public const int ChunkWidth = 16;
 		public const int ChunkDepth = 16;
 
-		public int X;
-		public int Z;
+		public int X { get; set; }
+		public int Z { get; set; }
 
 		public bool IsAllAir = false;
 		public bool IsNew = true;
@@ -62,21 +66,10 @@ namespace Alex.Worlds
 
 		public ChunkColumn()
 		{
-			var air = BlockFactory.GetBlockState(0);
 			IsDirty = true;
 			for (int i = 0; i < Chunks.Length; i++)
 			{
 				var b = new ExtendedBlockStorage(i, true);
-				for (int x = 0; x < 16; x++)
-				{
-					for (int z = 0; z < 16; z++)
-					{
-						for (int y = 0; y < 16; y++)
-						{
-							b.Set(x,y,z, air);
-						}
-					}
-				}
 				Chunks[i] = b;
 			}
 		}
@@ -91,11 +84,16 @@ namespace Alex.Worlds
 		{
 			Chunks[y >> 4].Set(x, y - 16 * (y >> 4), z, blockState);
 			SetDirty();
+			_heightDirty = true;
 		}
 
+		private static IBlockState Air = BlockFactory.GetBlockState("minecraft:air");
 		public IBlockState GetBlockState(int bx, int by, int bz)
 		{
-			return Chunks[by >> 4].Get(bx, by - 16 * (by >> 4), bz);
+			var chunk = Chunks[by >> 4];
+			if (chunk == null) return Air;
+
+			return chunk.Get(bx, by - 16 * (by >> 4), bz);
 		}
 
 		public IBlock GetBlock(int bx, int by, int bz)
@@ -104,13 +102,15 @@ namespace Alex.Worlds
 
 			if (bs == null) return new Air();
 
-			return bs.GetBlock();
+			return bs.Block;
 		}
 
 		public void SetBlock(int bx, int by, int bz, IBlock block)
 		{
 			Chunks[by >> 4].Set(bx, by - 16 * (by >> 4), bz, block.BlockState);
 			SetDirty();
+
+			_heightDirty = true;
 		}
 
 		public void SetHeight(int bx, int bz, short h)
@@ -155,15 +155,14 @@ namespace Alex.Worlds
 			Chunks[@by >> 4].SetExtSkylightValue(bx, @by - 16 * (@by >> 4), bz, data);
 		}
 
-		private IReadOnlyDictionary<Vector3, ChunkMesh.EntryPosition> PositionCache { get; set; } = null;
 		private Vector3 Position => new Vector3(X * 16, 0, Z*16);
 
 		public NbtCompound[] Entities { get; internal set; }
 
 		public void GenerateMeshes(IWorld world, out ChunkMesh mesh)
 		{
-			List<ChunkMesh.Entry> solidVertices = new List<ChunkMesh.Entry>();
-			List<ChunkMesh.Entry> transparentVertices = new List<ChunkMesh.Entry>();
+			List<VertexPositionNormalTextureColor> solidVertices = new List<VertexPositionNormalTextureColor>();
+			List<VertexPositionNormalTextureColor> transparentVertices = new List<VertexPositionNormalTextureColor>();
 
 			//if (Scheduled == ScheduleType.Full || PositionCache == null)
 			{
@@ -184,48 +183,6 @@ namespace Alex.Worlds
 					}
 				}
 			}
-		/*	else if (Scheduled == ScheduleType.Border)
-			{
-				for (var index = 0; index < Chunks.Length; index++)
-				{
-					var chunk = Chunks[index];
-					if (chunk.IsAllAir()) continue;
-
-					for (int x = 0; x < ChunkWidth; x++)
-					{
-						for (var y = 0; y < 16; y++)
-						{
-							Update(world, chunk,
-								index,
-								x, y, 0,
-								solidVertices,
-								transparentVertices);
-
-							Update(world, chunk,
-								index,
-								x, y, 15,
-								solidVertices,
-								transparentVertices);
-
-							Update(world, chunk,
-								index,
-								0, y, x,
-								solidVertices,
-								transparentVertices);
-
-							Update(world, chunk,
-								index,
-								15, y, x,
-								solidVertices,
-								transparentVertices);
-						}
-					}
-				}
-			}
-			else if (Scheduled == ScheduleType.Scheduled)
-			{
-
-			}*/
 
 			mesh = new ChunkMesh(solidVertices.ToArray(), transparentVertices.ToArray());
 		//	PositionCache = mesh.EntryPositions;
@@ -233,8 +190,8 @@ namespace Alex.Worlds
 
 		private void Update(IWorld world, ExtendedBlockStorage chunk,
 			int index, int x, int y, int z,
-			List<ChunkMesh.Entry> solidVertices,
-			List<ChunkMesh.Entry> transparentVertices)
+			List<VertexPositionNormalTextureColor> solidVertices,
+			List<VertexPositionNormalTextureColor> transparentVertices)
 		{
 			var stateId = chunk.Get(x, y, z);
 
@@ -244,30 +201,38 @@ namespace Alex.Worlds
 				return;
 			}
 
-			IBlock block = stateId.GetBlock();// BlockFactory.GetBlock(stateId);
+			IBlock block = stateId.Block;// BlockFactory.GetBlock(stateId);
 
 			if (!block.Renderable) return;
 
 			var blockPosition = new Vector3(x, y + (index * 16), z) + Position;
 
-			var vert = block.GetVertices(blockPosition, world);
-			var result = new ChunkMesh.Entry(block.BlockState.ID, vert, blockPosition);
+			var vert = stateId.Model.GetVertices(world, blockPosition, block);
+		//	var result = new ChunkMesh.Entry(block.BlockStateResource.ID, vert, blockPosition);
 
 			if (block.Transparent)
 			{
-				transparentVertices.Add(result);
+				transparentVertices.AddRange(vert);
 				//transparentVertices.AddRange(vert);
 			}
 			else
 			{
-				solidVertices.Add(result);
+				solidVertices.AddRange(vert);
 				//solidVertices.AddRange(vert);
 			}
 		}
 
+		private bool _heightDirty = true;
+		private int _heighest = -1;
 		public int GetHeighest()
 		{
-			return Height.Max();
+			if (_heightDirty)
+			{
+				_heighest = Height.Max();
+				_heightDirty = false;
+			}
+
+			return _heighest;
 		}
 
 		public void Dispose()
@@ -309,6 +274,8 @@ namespace Alex.Worlds
 					}
 				}
 			}
+
+			GetHeighest();
 		}
 
 		public void CalculateSkylight()
@@ -347,6 +314,81 @@ namespace Alex.Worlds
 					}
 				}
 			}
+		}
+
+		public void Read(MinecraftStream ms, int availableSections, bool groundUp, bool readSkylight)
+		{
+			for (int i = 0; i < this.Chunks.Length; i++)
+			{
+				var storage = this.Chunks[i];
+				if ((availableSections & (1 << i)) == 0)
+				{
+					if (groundUp && !storage.IsEmpty())
+					{
+						storage = new ExtendedBlockStorage(i, readSkylight);
+					}
+				}
+				else
+				{
+					if (storage == null)
+					{
+						storage = new ExtendedBlockStorage(i, readSkylight);
+					}
+
+					storage.Data.Read(ms);					
+				}
+
+				for (int y = 0; y < 16; y++)
+				{
+					for (int z = 0; z < 16; z++)
+					{
+						for (int x = 0; x < 16; x += 2)
+						{
+							// Note: x += 2 above; we read 2 values along x each time
+							byte value = (byte) ms.ReadByte();
+
+							storage.SetExtBlocklightValue(x, y, z, (byte) (value & 0xF));
+							storage.SetExtBlocklightValue(x + 1, y, z, (byte) ((value >> 4) & 0xF));
+						}
+					}
+				}
+
+				//if (currentDimension.HasSkylight())
+				if (readSkylight)
+				{
+					for (int y = 0; y < 16; y++)
+					{
+						for (int z = 0; z < 16; z++)
+						{
+							for (int x = 0; x < 16; x += 2)
+							{
+								// Note: x += 2 above; we read 2 values along x each time
+								byte value = (byte)ms.ReadByte();
+
+								storage.SetExtSkylightValue(x, y, z, value & 0xF);
+								storage.SetExtSkylightValue(x + 1, y, z, (value >> 4) & 0xF);
+							}
+						}
+					}
+				}
+
+				this.Chunks[i] = storage;
+			}
+
+			for (int i = 0; i < Chunks.Length; i++)
+			{
+				Chunks[i].RemoveInvalidBlocks();
+			}
+
+			if (groundUp)
+			{
+				for (int i = 0; i < 256; i++)
+				{
+					BiomeId[i] = ms.ReadByte();
+				}
+			}
+
+			CalculateHeight();
 		}
 	}
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.AccessControl;
 using Alex.ResourcePackLib.Json;
 using Alex.ResourcePackLib.Json.Models;
+using Alex.ResourcePackLib.Json.Models.Blocks;
 using Alex.ResourcePackLib.Json.Models.Entities;
 using Alex.ResourcePackLib.Json.Textures;
 using ICSharpCode.SharpZipLib.Zip;
@@ -64,7 +65,6 @@ namespace Alex.ResourcePackLib
 			{
 				if (entry.IsDirectory)
 				{
-					CheckDirectory(entry);
 					continue;
 				}
 			
@@ -93,11 +93,6 @@ namespace Alex.ResourcePackLib
 			{
 				LoadEntityDefinition(entry, entityDefinitions);
 			}
-		}
-
-		private void CheckDirectory(ZipEntry entry)
-		{
-			
 		}
 
 		private void LoadEntityDefinition(ZipEntry entry, Dictionary<string, EntityDefinition> entityDefinitions)
@@ -151,7 +146,7 @@ namespace Alex.ResourcePackLib
 
 			Textures = textures;
 			TextureJsons = textureJsons;
-			Log.Info($"Loaded {textures.Count} textures and {textureJsons.Count} textureJsons");
+			Log.Info($"Loaded {textures.Count} textures and {textureJsons.Count} texture definitions");
 		}
 
 		private void LoadMobs(ZipEntry entry)
@@ -171,7 +166,7 @@ namespace Alex.ResourcePackLib
 				if (processedModels.ContainsKey(e.Key))
 					continue;
 
-				ProcessModel(e.Value, entries, processedModels);
+				ProcessEntityModel(e.Value, entries, processedModels);
 			}
 
 			EntityModels = processedModels;
@@ -179,7 +174,7 @@ namespace Alex.ResourcePackLib
 			Log.Info($"Imported {processedModels.Count} entity models");
 		}
 
-		private void ProcessModel(EntityModel model, Dictionary<string, EntityModel> models, Dictionary<string, EntityModel> processedModels)
+		private void ProcessEntityModel(EntityModel model, Dictionary<string, EntityModel> models, Dictionary<string, EntityModel> processedModels)
 		{
 			string modelName = model.Name;
 			if (model.Name.Contains(":")) //This model inherits from another model.
@@ -193,7 +188,7 @@ namespace Alex.ResourcePackLib
 				{
 					if (models.TryGetValue(parent, out parentModel))
 					{
-						ProcessModel(parentModel, models, processedModels);
+						ProcessEntityModel(parentModel, models, processedModels);
 						parentModel = processedModels[parent];
 					}
 					else
@@ -226,21 +221,42 @@ namespace Alex.ResourcePackLib
 				Dictionary<string, EntityModelBone> bones =
 					model.Bones.Where(x => x != null && !string.IsNullOrWhiteSpace(x.Name)).ToDictionary(x => x.Name, e => e);
 
-				int inheritedBones = 0;
 				foreach (var bone in parentBones)
 				{
-					if (!bones.ContainsKey(bone.Key))
+					var parentBone = bone.Value;
+					if (bones.TryGetValue(bone.Key, out EntityModelBone val))
 					{
-						bones.Add(bone.Key, bone.Value);
-						inheritedBones++;
+						if (!val.Reset)
+						{
+							if (val.Cubes != null)
+							{
+								val.Cubes = val.Cubes.Concat(parentBone.Cubes).ToArray();
+							}
+							else
+							{
+								val.Cubes = parentBone.Cubes;
+							}
+							//val.Cubes.Concat(parentBone.Cubes);
+						}
+
+						bones[bone.Key] = val;
+					}
+					else
+					{
+						bones.Add(bone.Key, parentBone);
 					}
 				}
 
 				model.Bones = bones.Values.ToArray();
-				//Log.Info($"Processed {modelName} inherited {inheritedBones} bones from {parent}");
 			}
 
 			processedModels.Add(modelName, model);
+		}
+
+		private void ProcessBlockModel(BedrockBlockModel blockModel, Dictionary<string, BedrockBlockModel> blockModels,
+			List<string> processedModels)
+		{
+
 		}
 
 		public class EntityDefinition

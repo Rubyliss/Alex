@@ -22,8 +22,10 @@ namespace Alex
 		public static string DotnetRuntime { get; } =
 			$"{System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}";
 
-		public static string Version = "1.0";
+		public const string Version = "1.0 DEV";
 		public static string Username { get; set; }
+		public static string UUID { get; set; }
+		public static string AccessToken { get; set; }
 		public static IPEndPoint ServerEndPoint { get; set; }
 		public static bool IsMultiplayer { get; set; } = false;
 
@@ -51,8 +53,6 @@ namespace Alex
 
 			IsFixedTimeStep = false;
            // graphics.ToggleFullScreen();
-			
-			Username = "";
 
 			UiManager = new UiManager(this);
 
@@ -96,7 +96,10 @@ namespace Alex
 				try
 				{
 					GameSettings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText("settings.json"));
-					Username = GameSettings.Username;
+					if (string.IsNullOrEmpty(Username))
+					{
+						Username = GameSettings.Username;
+					}
 				}
 				catch (Exception ex)
 				{

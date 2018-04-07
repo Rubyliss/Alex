@@ -24,7 +24,7 @@ namespace Alex.Worlds
 		internal ChunkManager ChunkManager { get; }
 		public CachedWorld(Alex alex)
 		{
-			ChunkManager = new ChunkManager(alex, alex.GraphicsDevice, null, this);
+			ChunkManager = new ChunkManager(alex, alex.GraphicsDevice, this);
 			Ticker = new TickManager(this);
 		}
 
@@ -93,7 +93,7 @@ namespace Alex.Worlds
 			{
 				return chunk.GetBlock(x & 0xf, y & 0xff, z & 0xf);
 			}
-			return BlockFactory.GetBlock(0, 0);
+			return BlockFactory.GetBlock(0);
 		}
 
 		public void SetBlock(float x, float y, float z, IBlock block)

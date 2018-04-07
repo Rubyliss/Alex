@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Text;
 using Alex.API.World;
 using Alex.Gamestates.Playing;
@@ -13,6 +14,7 @@ using Alex.Graphics.UI.Layout;
 using Alex.Utils;
 using Alex.Worlds;
 using Alex.Worlds.Generators;
+using Alex.Worlds.Java;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -38,8 +40,21 @@ namespace Alex.Gamestates
 				ClassName = "TitleScreenMenu"
 			};
 
-			stackMenu.AddMenuItem("Play", () => { });
-			stackMenu.AddMenuItem("Debug World", DebugWorldButtonActivated);
+			if (Alex.IsMultiplayer)
+			{
+				stackMenu.AddMenuItem("Connect", () =>
+				{
+					if (Alex.IsMultiplayer)
+					{
+						LoadWorld(new JavaWorldProvider(Alex, Alex.ServerEndPoint, Alex.Username, Alex.UUID, Alex.AccessToken));
+					}
+				});
+			}
+
+			stackMenu.AddMenuItem("Debug Blockstates", DebugWorldButtonActivated);
+			stackMenu.AddMenuItem("Debug Flatland", DebugFlatland);
+			stackMenu.AddMenuItem("Debug Anvil", DebugAnvil);
+
 			stackMenu.AddMenuItem("Options", () => { Alex.GameStateManager.SetActiveState("options"); });
 			stackMenu.AddMenuItem("Exit Game", () => { Alex.Exit(); });
 
@@ -56,31 +71,37 @@ namespace Alex.Gamestates
 			Alex.IsMouseVisible = true;
 		}
 
-		private void DebugWorldButtonActivated()
+		private void Debug(IWorldGenerator generator)
 		{
 			Alex.IsMouseVisible = false;
-
-			IWorldGenerator generator;
-			if (Alex.GameSettings.UseBuiltinGenerator || (string.IsNullOrWhiteSpace(Alex.GameSettings.Anvil) ||
-			                                              !File.Exists(Path.Combine(Alex.GameSettings.Anvil, "level.dat"))))
-			{
-				generator = new DebugWorldGenerator();
-			}
-			else
-			{
-				generator = new AnvilWorldProvider(Alex.GameSettings.Anvil)
-				{
-					MissingChunkProvider = new VoidWorldGenerator()
-				};
-			}
 
 			generator.Initialize();
 
 			LoadWorld(new SPWorldProvider(Alex, generator));
 		}
 
+		private void DebugFlatland()
+		{
+			Debug(new FlatlandGenerator());
+		}
+
+		private void DebugAnvil()
+		{
+			Debug(new AnvilWorldProvider(Alex.GameSettings.Anvil)
+			{
+				MissingChunkProvider = new VoidWorldGenerator()
+			});
+		}
+
+		private void DebugWorldButtonActivated()
+		{
+			Debug(new DebugWorldGenerator());
+		}
+
 		private void LoadWorld(WorldProvider worldProvider)
 		{
+			PlayingState playState = new PlayingState(Alex, Graphics, worldProvider);
+			Alex.GameStateManager.AddState("play", playState);
 
 			LoadingWorldState loadingScreen =
 				new LoadingWorldState(Alex, TextureUtils.ImageToTexture2D(Alex.GraphicsDevice, Resources.mcbg));
@@ -89,8 +110,7 @@ namespace Alex.Gamestates
 
 			worldProvider.Load(loadingScreen.UpdateProgress).ContinueWith(task =>
 			{
-				PlayingState playState = new PlayingState(Alex, Graphics, worldProvider);
-				Alex.GameStateManager.AddState("play", playState);
+				
 				Alex.GameStateManager.SetActiveState("play");
 
 				Alex.GameStateManager.RemoveState("loading");

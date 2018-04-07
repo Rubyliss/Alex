@@ -15,10 +15,10 @@ namespace Alex.Blocks
 			Transparent = true;
 			IsReplacible = true;
 			HasHitbox = false;
-			BlockModel = BlockFactory.StationairyWaterModel;
+			//BlockModel = BlockFactory.StationairyWaterModel;
 
 			IsWater = true;
-			IsWaterSource = true;
+			IsSourceBlock = true;
 			//BlockMaterial = Material.Water;
 		}
 
@@ -28,11 +28,11 @@ namespace Alex.Blocks
 			{
 				if (BlockState.GetTypedValue(LEVEL) == 0)
 				{
-					IsWaterSource = true;
+					IsSourceBlock = true;
 				}
 				else
 				{
-					IsWaterSource = false;
+					IsSourceBlock = false;
 				}
 			}
 			base.BlockPlaced(world, position);

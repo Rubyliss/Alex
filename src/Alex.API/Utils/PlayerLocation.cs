@@ -12,6 +12,7 @@ namespace Alex.API.Utils
 		public float Yaw { get; set; }
 		public float Pitch { get; set; }
 		public float HeadYaw { get; set; }
+		public bool OnGround { get; set; }
 
 		public PlayerLocation()
 		{
@@ -116,7 +117,25 @@ namespace Alex.API.Utils
 
 		public override string ToString()
 		{
-			return $"X={X}, Y={Y}, Z={Z}, HeadYaw={HeadYaw}, Yaw={Yaw}, Pich={Pitch}";
+			return $"X={X}, Y={Y}, Z={Z}, HeadYaw={HeadYaw}, Yaw={Yaw}, Pitch={Pitch}";
+		}
+
+		public Vector3 PreviewMove(Vector3 moveVector)
+		{
+			var movement = new Vector3(moveVector.X, moveVector.Y, moveVector.Z);
+			movement = Vector3.Transform(movement,
+				Matrix.CreateRotationY((float)HeadYaw.ToRadians()));
+
+			return ToVector3() + movement;
+		}
+
+		public void Move(Vector3 moveVector)
+		{
+			//var headDirection = GetHeadDirection();
+			var preview = PreviewMove(moveVector);
+			X = preview.X;
+			Y = preview.Y;
+			Z = preview.Z;
 		}
 	}
 }

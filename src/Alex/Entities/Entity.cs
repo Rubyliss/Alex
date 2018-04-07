@@ -14,28 +14,6 @@ using NLog;
 
 namespace Alex.Entities
 {
-   /* public class Entity : IEntity
-	{
-		public string Model { get; protected set; }
-		internal EntityModelRenderer ModelRenderer { get; set; }
-		public UUID UUID { get; set; } = new UUID(Guid.Empty.ToByteArray());
-		public long EntityId { get; set; }
-		public PlayerLocation KnownPosition { get; set; }
-
-		public long Age { get; set; }
-		public double Scale { get; set; } = 1.0;
-		public double Height { get; set; } = 1;
-		public double Width { get; set; } = 1;
-		public double Length { get; set; } = 1;
-		public double Drag { get; set; } = 0.02;
-		public double Gravity { get; set; } = 0.08;
-
-		public override string ToString()
-	    {
-		    return Model;
-	    }
-    }*/
-
 	public class Entity : IEntity
 	{
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger(typeof(Entity));
@@ -57,12 +35,13 @@ namespace Alex.Entities
 		//public HealthManager HealthManager { get; set; }
 
 		public string NameTag { get; set; }
-
+		
 		public bool NoAi { get; set; }
 		public bool HideNameTag { get; set; } = true;
 		public bool Silent { get; set; }
 		public bool IsInWater { get; set; } = false;
 		public bool IsOutOfWater => !IsInWater;
+		public bool Invulnerable { get; set; } = false;
 
 		public long Age { get; set; }
 		public double Scale { get; set; } = 1.0;
@@ -71,8 +50,12 @@ namespace Alex.Entities
 		public double Length { get; set; } = 1;
 		public double Drag { get; set; } = 0.02;
 		public double Gravity { get; set; } = 0.08;
+
 		public int Data { get; set; }
 		public UUID UUID { get; set; } = new UUID(Guid.Empty.ToByteArray());
+
+		public double MovementSpeed { get; set; } = 0.699999988079071;
+		public double FlyingSpeed { get; set; } = 0.4000000059604645;
 
 		public Entity(int entityTypeId, World level)
 		{
@@ -81,62 +64,6 @@ namespace Alex.Entities
 			EntityTypeId = entityTypeId;
 			KnownPosition = new PlayerLocation();
 		//	HealthManager = new HealthManager(this);
-		}
-
-		public enum MetadataFlags
-		{
-			EntityFlags = 0,
-			HideNameTag = 3,
-			NameTag = 4,
-			AvailableAir = 7,
-			EatingHaystack = 16,
-			MaybeAge = 25,
-			Scale = 39,
-			MaxAir = 44,
-			CollisionBoxHeight = 53,
-			CollisionBoxWidth = 54,
-		}
-
-
-		/*public virtual MetadataDictionary GetMetadata()
-		{
-			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[(int)MetadataFlags.EntityFlags] = new MetadataLong(GetDataValue());
-			metadata[1] = new MetadataInt(1);
-			metadata[2] = new MetadataInt(0);
-			metadata[(int)MetadataFlags.HideNameTag] = new MetadataByte(!HideNameTag);
-			metadata[(int)MetadataFlags.NameTag] = new MetadataString(NameTag ?? string.Empty);
-			metadata[(int)MetadataFlags.AvailableAir] = new MetadataShort(HealthManager.Air);
-			//metadata[4] = new MetadataByte(Silent);
-			//metadata[7] = new MetadataInt(0); // Potion Color
-			//metadata[8] = new MetadataByte(0); // Potion Ambient
-			//metadata[15] = new MetadataByte(NoAi);
-			//metadata[16] = new MetadataByte(0); // Player flags
-			////metadata[17] = new MetadataIntCoordinates(0, 0, 0);
-			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
-			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
-			//metadata[24] = new MetadataByte(0); // Leads on/off
-			metadata[(int)MetadataFlags.MaybeAge] = new MetadataInt(0); // Scale
-			metadata[(int)MetadataFlags.Scale] = new MetadataFloat(Scale); // Scale
-			metadata[(int)MetadataFlags.MaxAir] = new MetadataShort(HealthManager.MaxAir);
-			metadata[(int)MetadataFlags.CollisionBoxHeight] = new MetadataFloat(Height); // Collision box width
-			metadata[(int)MetadataFlags.CollisionBoxWidth] = new MetadataFloat(Width); // Collision box height
-			return metadata;
-		}*/
-
-		public virtual long GetDataValue()
-		{
-			//Player: 10000000000000011001000000000000
-			// 12, 15, 16, 31
-
-			BitArray bits = GetFlags();
-
-			byte[] bytes = new byte[8];
-			bits.CopyTo(bytes, 0);
-
-			long dataValue = BitConverter.ToInt64(bytes, 0);
-			Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString((long)dataValue, 2)}b ");
-			return dataValue;
 		}
 
 		public bool IsSneaking { get; set; }
@@ -257,6 +184,17 @@ namespace Alex.Entities
 			return bits;
 		}
 
+		public void Render(IRenderArgs renderArgs)
+		{
+			ModelRenderer.Render(renderArgs, KnownPosition);
+
+		}
+
+		public virtual void Update(IUpdateArgs args)
+		{
+			ModelRenderer.Update(args, KnownPosition);
+		}
+
 		public virtual void OnTick()
 		{
 			Age++;
@@ -331,14 +269,14 @@ namespace Alex.Entities
 		{
 		}
 
-		public void RenderNametag(IRenderArgs renderArgs, Camera camera)
+		public void RenderNametag(IRenderArgs renderArgs)
 		{
 			Vector2 textPosition;
 
 			// calculate screenspace of text3d space position
 			var screenSpace = renderArgs.GraphicsDevice.Viewport.Project(Vector3.Zero,
-				camera.ProjectionMatrix,
-				camera.ViewMatrix,
+				renderArgs.Camera.ProjectionMatrix,
+				renderArgs.Camera.ViewMatrix,
 				Matrix.CreateTranslation(KnownPosition + new Vector3(0, (float)Height, 0)));
 
 
