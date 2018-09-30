@@ -53,6 +53,18 @@ namespace Alex.GameStates.Playing
 		public void Update(GameTime gameTime)
 	    {
 		   UpdatePlayerInput(gameTime);
+
+		    if (IsJumping)
+		    {
+			    float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+				Player.KnownPosition.Move(new Vector3(0, JumpVelocity, 0));
+			    JumpVelocity -= (float)Player.Gravity * dt;
+			    if (JumpVelocity <= 0f)
+			    {
+				    JumpVelocity = 0f;
+				    IsJumping = false;
+			    }
+		    }
 	    }
 
 	    private void UpdatePlayerInput(GameTime gt)
@@ -76,6 +88,8 @@ namespace Alex.GameStates.Playing
 			}
 	    }
 
+	    private bool IsJumping = false;
+	    private float JumpVelocity = 0f;
 	    public float LastSpeedFactor = 0f;
 	    private void CheckMovementInput(GameTime gt)
 	    {
@@ -169,8 +183,11 @@ namespace Alex.GameStates.Playing
 					{
 						if (Player.KnownPosition.OnGround && Math.Abs(Math.Floor(Player.KnownPosition.Y) - Player.KnownPosition.Y) < 0.001f)
 						{
-						//	moveVector.Y += 42f;
-							Player.Velocity += new Vector3(0f, 0.42f, 0f);// //, 0);
+							//IsJumping = true;
+							//JumpVelocity = 0.42f;
+							//	moveVector.Y += 42f;
+							Player.Velocity += new Vector3(0f, 0.42f , 0f);// //, 0);
+							//Player.KnownPosition.Move(new Vector3(0f, 0.42f, 0f));
 						}
 					}
 				}

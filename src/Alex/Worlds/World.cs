@@ -155,7 +155,7 @@ namespace Alex.Worlds
 				ChunkManager.FogDistance = (float) Math.Pow(Alex.GameSettings.RenderDistance, 2) * 0.8f;
 			}
 
-			PhysicsEngine.Update(args.GameTime);
+		//	PhysicsEngine.Update(args.GameTime);
 
 			if (Ticker.Update(args))
 			{
